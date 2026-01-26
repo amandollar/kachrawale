@@ -65,6 +65,18 @@ const PickupSchema = new mongoose.Schema({
     type: Number,
     // Set by collector upon completion
   },
+  finalAmount: {
+    type: Number,
+  },
+  paymentMode: {
+    type: String,
+    enum: ['CASH', 'UPI', 'NONE'],
+    default: 'NONE'
+  },
+  isPaid: {
+    type: Boolean,
+    default: false
+  },
   verificationProof: {
     image: String,
     otp: String,

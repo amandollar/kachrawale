@@ -89,7 +89,10 @@ exports.updatePickupStatus = asyncHandler(async (req, res) => {
   }
 
   if (status) pickup.status = status;
-  if (req.body.verifiedWeight) pickup.verifiedWeight = req.body.verifiedWeight;
+  if (req.body.verifiedWeight !== undefined) pickup.verifiedWeight = req.body.verifiedWeight;
+  if (req.body.finalAmount !== undefined) pickup.finalAmount = req.body.finalAmount;
+  if (req.body.paymentMode) pickup.paymentMode = req.body.paymentMode;
+  if (req.body.isPaid !== undefined) pickup.isPaid = req.body.isPaid;
 
   await pickup.save();
 

@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import AdminPanel from './pages/AdminPanel';
+import Rates from './pages/Rates';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -38,6 +39,7 @@ function App() {
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/rates" element={<Rates />} />
               <Route 
                 path="/dashboard" 
                 element={

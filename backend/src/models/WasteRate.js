@@ -19,7 +19,7 @@ const wasteRateSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    enum: ['Paper', 'Plastic', 'Metal', 'Glass', 'E-Waste', 'Other'],
+    enum: ['Paper', 'Plastic', 'Metal', 'Glass', 'E-Waste', 'Other', 'Organic'],
     default: 'Other'
   },
   description: {
