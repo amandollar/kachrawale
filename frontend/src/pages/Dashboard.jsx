@@ -9,10 +9,12 @@ import { toast } from 'react-hot-toast';
 import { 
   LayoutDashboard, Plus, AlertTriangle, Clock, X, User,
   Wallet, TrendingUp, ChevronRight, Info, Activity, ShieldCheck, Zap,
-  Recycle
+  Recycle, MessageSquare
 } from 'lucide-react';
 import GPSTracker from '../components/GPSTracker';
 import LiveTrackingMap from '../components/LiveTrackingMap';
+import MessageList from '../components/MessageList';
+import ChatWindow from '../components/ChatWindow';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../utils/cn';
 
@@ -23,6 +25,8 @@ const Dashboard = () => {
   const [pickups, setPickups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [activeTab, setActiveTab] = useState('pickups'); // 'pickups' or 'messages'
+  const [selectedChatId, setSelectedChatId] = useState(null);
 
   const isPendingCollector = user?.role === 'collector' && !user?.isVerified;
 
@@ -49,20 +53,21 @@ const Dashboard = () => {
   }, [user, isPendingCollector]);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !user) return;
+
+    // Join user-specific room
+    socket.emit('join_user', user._id);
 
     socket.on('pickup_status_updated', (data) => {
-        const amICitizen = user.role === 'citizen' && data.citizenId === user._id;
-        const amICollector = user.role === 'collector' && (data.collectorId === user._id || !data.collectorId); 
+        // Since we are in the target room, we don't strictly need to filter by ID,
+        // but it's good practice.
+        fetchPickups(); 
         
-        if (amICitizen || amICollector) {
-            fetchPickups(); 
-            if (amICitizen) {
-                if (data.status === 'ON_THE_WAY') {
-                    toast.success("Collector is on the way! Live tracking enabled.");
-                } else if (data.status === 'COMPLETED') {
-                   toast.success("Pickup completed!");
-                }
+        if (user.role === 'citizen' && data.citizenId === user._id) {
+            if (data.status === 'ON_THE_WAY') {
+                toast.success("Collector is on the way! Live tracking enabled.");
+            } else if (data.status === 'COMPLETED') {
+               toast.success("Pickup completed!");
             }
         }
     });
@@ -106,38 +111,35 @@ const Dashboard = () => {
       )}
 
       {/* Hero Section Container */}
-      <div className="mesh-gradient border-b border-slate-100 shadow-sm relative overflow-hidden">
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 md:py-20 relative z-10">
+      <div className="bg-white border-b border-slate-200 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 py-12 md:py-16 relative z-10">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-10">
                 <motion.div 
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                 >
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="bg-emerald-600 p-2 rounded-xl shadow-lg shadow-emerald-200">
-                             <Zap className="h-6 w-6 text-white" />
-                        </div>
-                        <span className="text-xs font-black uppercase tracking-[3px] text-emerald-600">Active Dashboard</span>
+                    <div className="flex items-center gap-2 mb-4">
+                        <Zap className="h-4 w-4 text-emerald-600" />
+                        <span className="text-[10px] font-bold uppercase tracking-[2px] text-slate-400">Dashboard Overivew</span>
                     </div>
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-800 tracking-tight leading-tight">
-                        Welcome back, <br className="hidden sm:block" />
-                        <span className="text-emerald-600">{user?.name.split(' ')[0]}!</span>
+                    <h1 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
+                        Welcome, <span className="text-slate-500 font-medium">{user?.name.split(' ')[0]}</span>
                     </h1>
-                    <p className="text-slate-500 font-medium mt-4 text-lg max-w-md leading-relaxed">
-                        Ready to make the world cleaner? Check your active pickups or schedule a new one below.
+                    <p className="text-slate-500 text-sm font-medium mt-3 max-w-sm leading-relaxed">
+                        Manage your recycling operations and track active pickups.
                     </p>
                 </motion.div>
                 
                 {user?.role === 'citizen' && (
                     <motion.button 
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        whileHover={{ y: -2 }}
+                        whileTap={{ scale: 0.98 }}
                         onClick={() => setShowForm(!showForm)}
                         className={cn(
-                            "w-full sm:w-auto px-8 sm:px-10 py-4 sm:py-5 rounded-3xl transition-all flex items-center justify-center gap-3 font-black text-xs uppercase tracking-[2px] shadow-2xl active:scale-95 group overflow-hidden relative",
+                            "w-full sm:w-auto px-6 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2.5 font-bold text-[11px] uppercase tracking-wider active:scale-95 group",
                             showForm 
-                                ? "bg-white text-slate-500 border-2 border-slate-100 shadow-slate-100" 
-                                : "bg-emerald-600 text-white shadow-emerald-200 ring-4 ring-emerald-500/10"
+                                ? "bg-slate-100 text-slate-600 hover:bg-slate-200" 
+                                : "bg-slate-900 text-white shadow-xl shadow-slate-200 hover:bg-slate-800"
                         )}
                     >
                         {showForm ? (
@@ -154,16 +156,16 @@ const Dashboard = () => {
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[100px] -mr-40 -mt-40" />
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 -mt-10 relative z-20">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 -mt-10 relative z-20">
         
         {/* Live Tracking Alert Card */}
         {user?.role === 'citizen' && myActivePickup && (
             <motion.div 
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-12 bg-white p-8 rounded-[32px] border border-emerald-100 shadow-premium overflow-hidden group"
+                className="mb-10 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
             >
-                <div className="flex flex-col md:flex-row gap-10">
+                <div className="flex flex-col md:flex-row gap-8">
                     <div className="md:w-1/2 flex flex-col justify-between">
                         <div>
                             <div className="flex items-center gap-3 mb-6">
@@ -179,10 +181,15 @@ const Dashboard = () => {
                             </p>
                         </div>
                         <div className="pt-8 flex items-center gap-4">
-                             <div className="flex -space-x-3 overflow-hidden">
-                                <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-100 overflow-hidden"><img src="https://i.pravatar.cc/100?u=4" alt="" /></div>
-                                <div className="w-10 h-10 rounded-full border-2 border-white bg-emerald-600 flex items-center justify-center text-[10px] font-black text-white">+2</div>
-                             </div>
+                              <div className="flex -space-x-3 overflow-hidden">
+                                 <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-100 overflow-hidden">
+                                     <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=crew1`} alt="" />
+                                 </div>
+                                 <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-100 overflow-hidden">
+                                     <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=crew2`} alt="" />
+                                 </div>
+                                 <div className="w-10 h-10 rounded-full border-2 border-white bg-emerald-600 flex items-center justify-center text-[10px] font-black text-white">+1</div>
+                              </div>
                              <span className="text-xs font-bold text-slate-400">Collector & Crew</span>
                         </div>
                     </div>
@@ -226,28 +233,73 @@ const Dashboard = () => {
                                 exit={{ opacity: 0, y: -20, height: 0 }}
                                 className="overflow-hidden"
                             >
-                                <div className="bg-white rounded-[32px] border border-slate-100 shadow-premium overflow-hidden p-2">
+                                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                                     <PickupForm onPickupCreated={handlePickupCreated} />
                                 </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
 
-                    <div className="space-y-6">
-                        <div className="flex justify-between items-end px-4">
-                            <div>
-                                <h2 className="text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
-                                    Your Schedule <Activity className="h-5 w-5 text-emerald-600" />
-                                </h2>
-                                <p className="text-slate-400 text-sm font-semibold mt-1">Timeline of recent and upcoming pickups.</p>
+                    <div className="space-y-8">
+                        {/* Tab Switcher */}
+                        <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl w-fit border border-slate-200 ml-4">
+                            <button 
+                                onClick={() => setActiveTab('pickups')}
+                                className={cn(
+                                    "px-6 py-2 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all flex items-center gap-2",
+                                    activeTab === 'pickups' 
+                                        ? "bg-white text-slate-900 shadow-sm border border-slate-200" 
+                                        : "text-slate-400 hover:text-slate-600"
+                                )}
+                            >
+                                <Activity className="h-3.5 w-3.5" /> Operations
+                            </button>
+                            <button 
+                                onClick={() => setActiveTab('messages')}
+                                className={cn(
+                                    "px-6 py-2 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all flex items-center gap-2",
+                                    activeTab === 'messages' 
+                                        ? "bg-white text-slate-900 shadow-sm border border-slate-200" 
+                                        : "text-slate-400 hover:text-slate-600"
+                                )}
+                            >
+                                <MessageSquare className="h-3.5 w-3.5" /> Communications
+                                {pickups.filter(p => !!p.collector).length > 0 && (
+                                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                                )}
+                            </button>
+                        </div>
+
+                        {activeTab === 'pickups' ? (
+                            <div className="space-y-6">
+                                <div className="flex justify-between items-end px-4">
+                                    <div>
+                                        <h2 className="text-xl font-bold text-slate-900 tracking-tight">Active Operation Log</h2>
+                                        <p className="text-slate-400 text-xs font-medium mt-1">Real-time status of your pickup requests.</p>
+                                    </div>
+                                </div>
+                                <div className="bg-white rounded-2xl border border-slate-200 p-1 shadow-sm overflow-hidden">
+                                    <PickupList pickups={pickups} loading={loading} onPickupUpdated={fetchPickups} onOpenChat={(id) => {
+                                            setActiveTab('messages');
+                                            setSelectedChatId(id);
+                                        }} />
+                                </div>
                             </div>
-                            <span className="bg-white px-4 py-2 rounded-xl text-slate-500 font-bold text-[10px] uppercase border border-slate-100 shadow-sm tracking-[2px]">
-                                {pickups.length} Total
-                            </span>
-                        </div>
-                        <div className="p-2 md:p-4 bg-white md:bg-transparent rounded-[32px] md:border-none border border-slate-100 shadow-sm md:shadow-none">
-                            <PickupList pickups={pickups} loading={loading} onPickupUpdated={fetchPickups} />
-                        </div>
+                        ) : (
+                            <div className="space-y-6">
+                                <div className="px-4">
+                                    <h2 className="text-xl font-bold text-slate-900 tracking-tight">Direct Messaging</h2>
+                                    <p className="text-slate-400 text-xs font-medium mt-1">Coordination with assigned personnel.</p>
+                                </div>
+                                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-2">
+                                    <MessageList 
+                                        pickups={pickups} 
+                                        onSelectConversation={(id) => setSelectedChatId(id)}
+                                        selectedId={selectedChatId}
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             ) : (
@@ -270,78 +322,67 @@ const Dashboard = () => {
             {/* Right Column: Profile Summary & Tips */}
             <div className="space-y-10">
                 {user?.role === 'collector' && collectorStats && (
-                    <motion.div 
-                        whileHover={{ y: -5 }}
-                        className="bg-emerald-600 p-10 rounded-[32px] shadow-2xl shadow-emerald-200 relative overflow-hidden group text-white border-none"
-                    >
-                        <div className="absolute -right-8 -bottom-8 opacity-20 group-hover:scale-125 transition-transform duration-1000 rotate-12">
-                            <Wallet className="h-40 w-40" />
-                        </div>
+                    <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
                         <div className="relative z-10 flex flex-col justify-between h-full">
                             <div>
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className="p-2 bg-white/20 rounded-lg backdrop-blur-md">
-                                        <TrendingUp className="h-5 w-5 text-white" />
-                                    </div>
-                                    <h5 className="font-black uppercase tracking-[2px] text-xs text-emerald-100">Estimated Commission</h5>
+                                <div className="flex items-center gap-2 mb-4">
+                                    <Wallet className="h-4 w-4 text-emerald-600" />
+                                    <h5 className="font-bold uppercase tracking-wider text-[10px] text-slate-400">Accrued Commission</h5>
                                 </div>
-                                <div className="text-5xl font-bold tracking-tight mb-2">₹{collectorStats.earnings.toFixed(2)}</div>
-                                <p className="text-sm font-bold text-emerald-200/80 mb-8">{collectorStats.count} Completed Services</p>
+                                <div className="text-3xl font-bold text-slate-900 tracking-tight mb-1">₹{collectorStats.earnings.toFixed(2)}</div>
+                                <p className="text-[11px] font-bold text-slate-400 mb-6">{collectorStats.count} Completed Dispatches</p>
                             </div>
                             <button 
                                 onClick={() => navigate('/profile')}
-                                className="w-full py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-2xl font-black text-xs uppercase tracking-[2px] transition-all border border-white/20 shadow-lg"
+                                className="w-full py-3 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all border border-slate-200"
                             >
-                                Withdrawal History
+                                Settlement Records
                             </button>
                         </div>
-                    </motion.div>
+                    </div>
                 )}
 
-                <div className="bg-white rounded-[32px] shadow-premium border border-slate-100 p-10 flex flex-col items-center text-center relative group">
-                    <div className="absolute top-6 right-6 p-2 rounded-xl bg-slate-50 text-slate-300 group-hover:text-emerald-500 transition-colors">
-                        <Info className="h-4 w-4" />
-                    </div>
-                    <div className="relative mb-8">
-                        <div className="w-28 h-28 rounded-full border-[6px] border-slate-50 overflow-hidden bg-white shadow-xl ring-2 ring-emerald-500/10">
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 flex flex-col items-center text-center relative group">
+                    <div className="relative mb-6">
+                        <div className="w-20 h-20 rounded-full border-4 border-slate-50 overflow-hidden bg-white shadow-sm ring-1 ring-slate-100">
                             <img 
-                                src={user?.profilePicture} 
+                                src={user?.profilePicture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'anonymous'}`} 
                                 alt={user?.name}
                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                             />
                         </div>
                     </div>
-                    <h3 className="text-xl font-bold text-slate-800 tracking-tight">{user?.name}</h3>
-                    <div className="flex items-center gap-2 mt-4">
-                         <span className="text-emerald-600 font-black uppercase tracking-[3px] text-[10px] bg-emerald-50/50 px-4 py-1.5 rounded-full border border-emerald-100 shadow-sm">
+                    <h3 className="text-lg font-bold text-slate-900 tracking-tight">{user?.name}</h3>
+                    <div className="flex items-center gap-2 mt-2">
+                         <span className="text-slate-500 font-bold uppercase tracking-wider text-[9px] bg-slate-100 px-3 py-1 rounded-md border border-slate-200">
                                 {user?.role}
                         </span>
                     </div>
-                    <p className="text-slate-400 text-xs font-bold mt-8 pb-8 leading-relaxed max-w-[200px]">Empower your recycling journey with personalized stats.</p>
+                    <p className="text-slate-400 text-xs font-medium mt-6 pb-6 leading-relaxed max-w-[180px]">View and manage your account credentials and personal preferences.</p>
                     <button 
                         onClick={() => navigate('/profile')}
-                        className="w-full py-5 bg-slate-900 text-white rounded-[24px] font-black text-xs uppercase tracking-[3px] hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 flex items-center justify-center gap-3 active:scale-95 group"
+                        className="w-full py-3.5 bg-white border border-slate-200 text-slate-800 rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-slate-50 transition-all shadow-sm flex items-center justify-center gap-2 active:scale-95"
                     >
-                        View Profile <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                        Account Settings <ChevronRight className="h-3.5 w-3.5" />
                     </button>
                 </div>
 
-                <div className="bg-white rounded-[32px] p-10 border border-slate-100 shadow-sm overflow-hidden flex flex-col gap-8">
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-1 object-cover bg-emerald-500 rounded-full" />
-                        <h4 className="text-[11px] font-black uppercase tracking-[3px] text-slate-800">Pro Guidelines</h4>
+                <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm flex flex-col gap-6">
+                    <div className="flex items-center gap-2">
+                        <Info className="h-3.5 w-3.5 text-slate-400" />
+                        <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-900">Operational Standards</h4>
                     </div>
-                    <div className="space-y-6">
+                    <div className="space-y-4">
                         {[
-                            { text: "Segregate dry & wet waste.", icon: <Recycle className="h-3.5 w-3.5" /> },
-                            { text: "Bundle metal scraps safely.", icon: <ShieldCheck className="h-3.5 w-3.5" /> },
-                            { text: "Verify collector's live ID.", icon: <User className="h-3.5 w-3.5" /> }
+                            { text: "Segregate dry and wet waste categories.", icon: <Recycle className="h-3 w-3" /> },
+                            { text: "Bundle metal scraps for safe handling.", icon: <ShieldCheck className="h-3 w-3" /> },
+                            { text: "Verify identification before transaction.", icon: <User className="h-3 w-3" /> }
                         ].map((tip, i) => (
-                            <div key={i} className="flex gap-5 items-start">
-                                <div className="h-7 w-7 rounded-xl bg-slate-50 border border-slate-100 flex-shrink-0 flex items-center justify-center text-slate-400">
+                            <div key={i} className="flex gap-4 items-start">
+                                <div className="h-6 w-6 rounded-lg bg-slate-50 border border-slate-100 flex-shrink-0 flex items-center justify-center text-slate-400">
                                     {tip.icon}
                                 </div>
-                                <span className="text-xs font-bold text-slate-500 leading-relaxed pt-1">{tip.text}</span>
+                                <span className="text-[11px] font-medium text-slate-500 leading-relaxed pt-0.5">{tip.text}</span>
                             </div>
                         ))}
                     </div>
@@ -349,6 +390,12 @@ const Dashboard = () => {
             </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {selectedChatId && (
+          <ChatWindow pickupId={selectedChatId} onClose={() => setSelectedChatId(null)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

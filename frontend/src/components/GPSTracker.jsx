@@ -8,7 +8,10 @@ const GPSTracker = ({ pickupId }) => {
   useEffect(() => {
     if (!socket || !pickupId) return;
 
-    // Emit initial "start" message or just start streaming
+    // Join the specific pickup tracking room 
+    // (In case the backend uses rooms for update_location broadcasting)
+    socket.emit('join_pickup', pickupId);
+
     console.log("Starting GPS Tracking for pickup:", pickupId);
 
     const success = (position) => {

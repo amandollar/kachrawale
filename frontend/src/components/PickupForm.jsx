@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import api from '../utils/api';
 import { Upload, MapPin, Loader2, FileVideo, CheckCircle2, ChevronDown, Trash2 } from 'lucide-react';
 import { cn } from '../utils/cn';
+import { motion } from 'framer-motion';
 
 const PickupForm = ({ onPickupCreated }) => {
   const [wasteType, setWasteType] = useState('plastic');

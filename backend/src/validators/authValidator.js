@@ -19,17 +19,24 @@ exports.registerSchema = z.object({
                 formattedAddress: val
             };
         }
+        // If it's an object but missing type, add it
+        if (val && typeof val === 'object' && !val.type) {
+            return {
+                ...val,
+                type: 'Point'
+            };
+        }
         return val;
     },
     z.object({
-        type: z.literal('Point'),
-        coordinates: z.array(z.number()).length(2),
+        type: z.literal('Point').default('Point'),
+        coordinates: z.array(z.number()).length(2).default([0, 0]),
         formattedAddress: z.string().optional()
     }).optional()
   ),
   collectorDetails: z.preprocess(
     (val) => {
-      if (typeof val === 'string') {
+      if (typeof val === 'string' && val.trim().startsWith('{')) {
         try {
           return JSON.parse(val);
         } catch (e) {
@@ -41,7 +48,7 @@ exports.registerSchema = z.object({
     z.object({
       vehicleNumber: z.string().optional(),
       licenseNumber: z.string().optional(),
-      vehicleType: z.enum(['Truck', 'Van', 'Rickshaw', 'Bike']).optional()
+      vehicleType: z.enum(['truck', 'van', 'bicycle', 'scooter']).optional()
     }).optional()
   )
 });

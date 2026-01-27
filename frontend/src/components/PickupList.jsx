@@ -7,7 +7,7 @@ import { Skeleton } from './Skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../utils/cn';
 
-const PickupList = ({ pickups, loading, onPickupUpdated }) => {
+const PickupList = ({ pickups, loading, onPickupUpdated, onOpenChat }) => {
   const { user } = useAuth();
   const [processingId, setProcessingId] = useState(null);
   const [selectedPickup, setSelectedPickup] = useState(null);
@@ -60,16 +60,16 @@ const PickupList = ({ pickups, loading, onPickupUpdated }) => {
             </div>
         ) : !pickups || pickups.length === 0 ? (
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-slate-100 flex flex-col items-center justify-center space-y-4 shadow-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-16 bg-white rounded-xl border border-slate-200 flex flex-col items-center justify-center space-y-4"
             >
-                <div className="p-5 bg-slate-50 rounded-full">
-                  <Package className="h-10 w-10 text-slate-300" />
+                <div className="p-4 bg-slate-50 rounded-full text-slate-300">
+                  <Package className="h-8 w-8" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-slate-800 tracking-tight">Everything's Clean!</h3>
-                  <p className="text-slate-500 text-sm font-medium max-w-xs mx-auto mt-1">No active pickups found. Start recycling to see your tasks here.</p>
+                  <h3 className="text-base font-bold text-slate-900 tracking-tight">No dispatch requests</h3>
+                  <p className="text-slate-400 text-xs font-medium max-w-xs mx-auto mt-1">Operational logs will appear here when pickups are scheduled.</p>
                 </div>
             </motion.div>
         ) : (
@@ -78,59 +78,53 @@ const PickupList = ({ pickups, loading, onPickupUpdated }) => {
                     {pickups.map((pickup, idx) => (
                         <motion.div 
                             key={pickup._id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: idx * 0.05 }}
-                            className="bg-white p-5 md:p-6 rounded-2xl border border-slate-100 hover:border-emerald-100 hover:shadow-premium transition-all duration-300 group cursor-pointer relative overflow-hidden"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="bg-white p-5 rounded-xl border border-slate-100 hover:border-slate-300 transition-all cursor-pointer relative"
                             onClick={() => setSelectedPickup(pickup)}
                         >
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                                 <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-3 mb-3">
+                                    <div className="flex items-center gap-2 mb-2">
                                         <span className={cn(
-                                            "px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-wider border transition-colors",
+                                            "px-2 py-0.5 rounded text-[9px] font-bold tracking-wider border uppercase",
                                             statusStyles[pickup.status] || "bg-slate-50 text-slate-500 border-slate-100"
                                         )}>
                                             {pickup.status}
                                         </span>
-                                        <span className="text-[11px] text-slate-400 font-semibold flex items-center gap-1.5 uppercase tracking-wide">
-                                            <Clock className="h-3 w-3" /> {new Date(pickup.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1.5 ml-2">
+                                            {new Date(pickup.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                         </span>
                                     </div>
-                                    <h3 className="text-xl font-bold text-slate-800 capitalize tracking-tight group-hover:text-emerald-600 transition-colors mb-2">
-                                        {pickup.wasteType}
+                                    <h3 className="text-lg font-bold text-slate-900 capitalize tracking-tight mb-3">
+                                        {pickup.wasteType} Collection
                                     </h3>
-                                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-                                        <div className="flex items-center gap-2 text-slate-500 font-semibold text-sm">
-                                            <Package className="h-4 w-4 text-emerald-500/60" /> 
-                                            <span className="text-slate-700">{pickup.weight}kg</span>
+                                    <div className="flex flex-wrap items-center gap-4">
+                                        <div className="flex items-center gap-1.5 text-slate-600 font-bold text-xs">
+                                            <Package className="h-3.5 w-3.5 text-slate-400" /> 
+                                            <span>{pickup.weight} KG</span>
                                         </div>
                                         {pickup.location?.formattedAddress && (
-                                            <div className="flex items-center gap-2 text-slate-400 text-sm font-medium truncate max-w-[240px]">
-                                                <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-slate-300" />
+                                            <div className="flex items-center gap-1.5 text-slate-400 text-xs font-medium max-w-[300px]">
+                                                <MapPin className="h-3.5 w-3.5 text-slate-300 shrink-0" />
                                                 <span className="truncate">{pickup.location.formattedAddress}</span>
                                             </div>
                                         )}
                                     </div>
                                 </div>
                                 
-                                <div className="flex items-center gap-5 w-full sm:w-auto self-end sm:self-center border-t sm:border-t-0 pt-4 sm:pt-0 border-slate-50">
+                                <div className="flex items-center gap-4 shrink-0">
                                     {pickup.images && pickup.images.length > 0 && (
-                                        <div className="relative h-14 w-14 rounded-xl overflow-hidden border-2 border-slate-50 shadow-sm group-hover:shadow-md transition-shadow">
+                                        <div className="h-12 w-12 rounded-lg overflow-hidden border border-slate-200">
                                             <img 
                                                 src={pickup.images[0]} 
-                                                alt="Waste" 
-                                                className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                                alt="" 
+                                                className="h-full w-full object-cover grayscale-[0.2] hover:grayscale-0 transition-all"
                                             />
-                                            {pickup.video && (
-                                                <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                                                    <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-                                                </div>
-                                            )}
                                         </div>
                                     )}
                                     
-                                    <div className="flex items-center gap-3 ml-auto">
+                                    <div className="flex items-center gap-2">
                                         {user?.role === 'collector' && (pickup.status === 'CREATED' || pickup.status === 'MATCHING') && (
                                             <button 
                                                 onClick={(e) => {
@@ -138,13 +132,13 @@ const PickupList = ({ pickups, loading, onPickupUpdated }) => {
                                                     handleAccept(pickup._id);
                                                 }}
                                                 disabled={processingId === pickup._id}
-                                                className="bg-emerald-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-emerald-700 transition-all shadow-sm hover:shadow-emerald-200 disabled:opacity-50 active:scale-95 flex items-center gap-2"
+                                                className="bg-slate-900 text-white px-5 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-slate-800 transition-all disabled:opacity-50"
                                             >
-                                                {processingId === pickup._id ? <Loader2 className="animate-spin h-4 w-4" /> : 'Accept Request'}
+                                                {processingId === pickup._id ? <Loader2 className="animate-spin h-3.5 w-3.5" /> : 'Accept'}
                                             </button>
                                         )}
-                                        <div className="p-2 rounded-xl bg-slate-50 text-slate-300 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
-                                            <ChevronRight className="h-5 w-5" />
+                                        <div className="p-1.5 rounded-lg bg-slate-50 text-slate-300">
+                                            <ChevronRight className="h-4 w-4" />
                                         </div>
                                     </div>
                                 </div>
@@ -163,6 +157,7 @@ const PickupList = ({ pickups, loading, onPickupUpdated }) => {
                     onAccept={handleAccept}
                     processingId={processingId}
                     onStatusUpdate={onPickupUpdated}
+                    onOpenChat={onOpenChat}
                 />
             )}
         </AnimatePresence>

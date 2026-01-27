@@ -42,7 +42,10 @@ const LiveTrackingMap = ({ pickupId, initialLat, initialLng }) => {
   const [hasUpdate, setHasUpdate] = useState(false);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !pickupId) return;
+
+    // Join the specific pickup tracking room
+    socket.emit('join_pickup', pickupId);
 
     socket.on('location_updated', (data) => {
         if (data.pickupId === pickupId) {

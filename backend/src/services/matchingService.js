@@ -1,19 +1,35 @@
-
 const User = require('../models/User');
 
+/**
+ * Finds collectors within a specified radius (default 10km) of a pickup location.
+ * @param {Object} pickup - The pickup document containing location coordinates.
+ * @returns {Promise<Array>} - List of matching collector documents.
+ */
 exports.findBestCollectors = async (pickup) => {
-  // Logic: Find collectors within X radius
-  // For now: Return all collectors
-  // Future: Use $nearSphere with pickup.location.coordinates
-
   try {
-    const collectors = await User.find({ role: 'collector' });
+    const { coordinates } = pickup.location;
     
-    // Check if they are online? (Skipping for MVP)
-    
+    // Max distance in meters (10km)
+    const MAX_DISTANCE = 10000;
+
+    const collectors = await User.find({
+      role: 'collector',
+      isVerified: true, // Only verified collectors
+      'address.coordinates': {
+        $nearSphere: {
+          $geometry: {
+            type: 'Point',
+            coordinates: coordinates,
+          },
+          $maxDistance: MAX_DISTANCE,
+        },
+      },
+    });
+
     return collectors;
   } catch (err) {
     console.error('Matching Error:', err);
+    // Fallback: If geo-indexing fails or error occurs, return empty to prevent crash
     return [];
   }
 };

@@ -40,12 +40,14 @@ const pickups = require('./src/routes/pickupRoutes');
 const admin = require('./src/routes/adminRoutes');
 const marketplace = require('./src/routes/marketplaceRoutes');
 const rates = require('./src/routes/rateRoutes');
+const chat = require('./src/routes/chatRoutes');
 
 app.use('/api/auth', auth);
 app.use('/api/pickups', pickups);
 app.use('/api/admin', admin);
 app.use('/api/marketplace', marketplace);
 app.use('/api/rates', rates);
+app.use('/api/chat', chat);
 app.get('/', (req, res) => {
   res.send('Kachrawale API is running...');
 });
@@ -57,11 +59,41 @@ app.use(errorHandler);
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
   
+  // Join a private room for the user
+  socket.on('join_user', (userId) => {
+      socket.join(`user_${userId}`);
+      console.log(`User ${userId} joined their private room`);
+  });
+
+  // Join a room for a specific pickup tracking
+  socket.on('join_pickup', (pickupId) => {
+      socket.join(`pickup_${pickupId}`);
+      console.log(`Socket joined tracking room for pickup: ${pickupId}`);
+  });
+
   socket.on('update_location', (data) => {
       // Data: { pickupId, lat, lng, heading }
-      // Broadcast to everyone listening (or ideally just the room for this pickup)
-      // For simplicity in this Zomato-level prototype, we broadcast to all clients
-      io.emit('location_updated', data);
+      // Targeted broadcast to the pickup's room
+      io.to(`pickup_${data.pickupId}`).emit('location_updated', data);
+  });
+
+  socket.on('send_message', async (data) => {
+      // Data: { pickupId, senderId, content }
+      const Message = require('./src/models/Message');
+      try {
+          const message = await Message.create({
+              pickup: data.pickupId,
+              sender: data.senderId,
+              content: data.content
+          });
+          
+          const populatedMessage = await message.populate('sender', 'name profilePicture');
+          
+          // Emit to the pickup room
+          io.to(`pickup_${data.pickupId}`).emit('receive_message', populatedMessage);
+      } catch (err) {
+          console.error('Chat Error:', err);
+      }
   });
 
   socket.on('disconnect', () => {

@@ -1,5 +1,6 @@
 
 const Pickup = require('../models/Pickup');
+const WasteRate = require('../models/WasteRate');
 const { findBestCollectors } = require('../services/matchingService');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
@@ -20,13 +21,16 @@ exports.createPickup = asyncHandler(async (req, res) => {
   const pickup = await Pickup.create(req.body);
   const collectors = await findBestCollectors(pickup);
   
-  if (req.io) {
-      req.io.emit('new_pickup', { 
-          pickupId: pickup._id, 
-          location: pickup.location,
-          wasteType: pickup.wasteType 
+  if (req.io && collectors.length > 0) {
+      // Notify only the matched collectors within radius
+      collectors.forEach(collector => {
+          req.io.to(`user_${collector._id}`).emit('new_pickup', { 
+              pickupId: pickup._id, 
+              location: pickup.location,
+              wasteType: pickup.wasteType 
+          });
       });
-      console.log(`Emitted new_pickup to ${collectors.length} potential collectors`);
+      console.log(`Notified ${collectors.length} collectors within 10km radius`);
   }
 
   res.status(201).json(new ApiResponse(201, pickup, 'Pickup created successfully'));
@@ -66,44 +70,105 @@ exports.getPickup = asyncHandler(async (req, res) => {
 });
 
 exports.updatePickupStatus = asyncHandler(async (req, res) => {
-  let pickup = await Pickup.findById(req.params.id);
+  const { status, verifiedWeight, paymentMode, isPaid } = req.body;
+  const pickupId = req.params.id;
+
+  // 1. ATOMIC ACCEPTANCE LOGIC (Concurrency Fix)
+  if (req.user.role === 'collector' && status === 'ACCEPTED') {
+      const pickup = await Pickup.findOneAndUpdate(
+          { _id: pickupId, status: { $in: ['CREATED', 'MATCHING'] } },
+          { 
+              status: 'ACCEPTED', 
+              collector: req.user.id 
+          },
+          { new: true }
+      ).populate('citizen', 'name phone');
+
+      if (!pickup) {
+          throw new ApiError(400, 'Pickup is no longer available or already accepted by another collector');
+      }
+
+      if (req.io) {
+          const payload = {
+              pickupId: pickup._id,
+              status: pickup.status,
+              citizenId: pickup.citizen._id || pickup.citizen,
+              collectorId: pickup.collector
+          };
+          
+          // Notify the specific citizen
+          req.io.to(`user_${payload.citizenId}`).emit('pickup_status_updated', payload);
+          
+          // Notify the specific collector
+          req.io.to(`user_${payload.collectorId}`).emit('pickup_status_updated', payload);
+      }
+
+      return res.status(200).json(new ApiResponse(200, pickup, 'Pickup accepted successfully'));
+  }
+
+  // 2. STANDARD STATUS UPDATES
+  let pickup = await Pickup.findById(pickupId);
   
   if (!pickup) {
       throw new ApiError(404, 'Pickup not found');
   }
 
-  const { status } = req.body;
-  
-  if (req.user.role === 'collector') {
-      if (status === 'ACCEPTED') {
-          if (pickup.status !== 'CREATED' && pickup.status !== 'MATCHING') {
-              throw new ApiError(400, 'Pickup not available');
-          }
-          pickup.collector = req.user.id;
-      } else {
-           const currentCollectorId = pickup.collector ? String(pickup.collector) : null;
-           if (currentCollectorId !== req.user.id) {
-               throw new ApiError(401, 'Not authorized');
-           }
+  // Auth check for non-admin updates
+  if (req.user.role !== 'admin') {
+      const currentCollectorId = pickup.collector ? String(pickup.collector) : null;
+      if (currentCollectorId !== req.user.id) {
+          throw new ApiError(401, 'Not authorized to update this pickup');
       }
   }
 
-  if (status) pickup.status = status;
-  if (req.body.verifiedWeight !== undefined) pickup.verifiedWeight = req.body.verifiedWeight;
-  if (req.body.finalAmount !== undefined) pickup.finalAmount = req.body.finalAmount;
-  if (req.body.paymentMode) pickup.paymentMode = req.body.paymentMode;
-  if (req.body.isPaid !== undefined) pickup.isPaid = req.body.isPaid;
+  // 3. SECURE PRICE CALCULATION (Payment Security)
+  if (status === 'COMPLETED') {
+      if (verifiedWeight === undefined) {
+          throw new ApiError(400, 'Verified weight is required to complete pickup');
+      }
+
+      // Fetch the rate from DB (Backend-side truth)
+      // Normalize casing: enum in WasteRate is capitalized (Plastic, Metal...)
+      const rateCategory = pickup.wasteType.charAt(0).toUpperCase() + pickup.wasteType.slice(1);
+      const wasteRate = await WasteRate.findOne({ category: rateCategory });
+
+      if (!wasteRate) {
+          throw new ApiError(500, `Market rate for category ${rateCategory} not found`);
+      }
+
+      pickup.verifiedWeight = verifiedWeight;
+      pickup.finalAmount = Number((verifiedWeight * wasteRate.price).toFixed(2));
+      pickup.status = 'COMPLETED';
+      pickup.paymentMode = paymentMode || 'NONE';
+      pickup.isPaid = isPaid || false;
+  } else {
+      if (status) pickup.status = status;
+      if (verifiedWeight !== undefined) pickup.verifiedWeight = verifiedWeight;
+      if (paymentMode) pickup.paymentMode = paymentMode;
+      if (isPaid !== undefined) pickup.isPaid = isPaid;
+  }
 
   await pickup.save();
 
   if (req.io) {
-      req.io.emit('pickup_status_updated', {
+      const payload = {
           pickupId: pickup._id,
           status: pickup.status,
           citizenId: pickup.citizen,
           collectorId: pickup.collector
-      });
+      };
+
+      // Notify the specific citizen
+      req.io.to(`user_${pickup.citizen}`).emit('pickup_status_updated', payload);
+      
+      // Notify the specific collector
+      if (pickup.collector) {
+          req.io.to(`user_${pickup.collector}`).emit('pickup_status_updated', payload);
+      }
+
+      // Also notify anyone watching the specific pickup tracking room
+      req.io.to(`pickup_${pickup._id}`).emit('pickup_status_updated', payload);
   }
 
-  res.status(200).json(new ApiResponse(200, pickup, 'Status updated'));
+  res.status(200).json(new ApiResponse(200, pickup, 'Status updated successfully'));
 });
