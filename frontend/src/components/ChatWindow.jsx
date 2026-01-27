@@ -27,9 +27,12 @@ const ChatWindow = ({ pickupId, isSupport = false, supportUserId, onClose, mode 
       socket.emit('join_support', { userId: targetSupportId, role: user?.role });
       
       const handleSupportMessage = (message) => {
-        // Only add if it belongs to this support thread
+        // Only add if it belongs to this support thread and isn't a duplicate
         if (message.isSupport && String(message.supportUser) === String(targetSupportId)) {
-          setMessages((prev) => [...prev, message]);
+          setMessages((prev) => {
+              if (prev.some(m => m._id === message._id)) return prev;
+              return [...prev, message];
+          });
         }
       };
 
@@ -39,7 +42,10 @@ const ChatWindow = ({ pickupId, isSupport = false, supportUserId, onClose, mode 
       socket.emit('join_pickup', pickupId);
       
       const handleMessage = (message) => {
-        setMessages((prev) => [...prev, message]);
+        setMessages((prev) => {
+            if (prev.some(m => m._id === message._id)) return prev;
+            return [...prev, message];
+        });
       };
 
       socket.on('receive_message', handleMessage);

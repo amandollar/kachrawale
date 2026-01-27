@@ -128,8 +128,15 @@ exports.updatePickupStatus = asyncHandler(async (req, res) => {
       }
 
       // Fetch the rate from DB (Backend-side truth)
-      // Normalize casing: enum in WasteRate is capitalized (Plastic, Metal...)
-      const rateCategory = pickup.wasteType.charAt(0).toUpperCase() + pickup.wasteType.slice(1);
+      // Normalize casing: 
+      // 'e-waste' -> 'E-Waste'
+      // 'paper' -> 'Paper'
+      let rateCategory;
+      if (pickup.wasteType.toLowerCase() === 'e-waste') {
+          rateCategory = 'E-Waste';
+      } else {
+          rateCategory = pickup.wasteType.charAt(0).toUpperCase() + pickup.wasteType.slice(1).toLowerCase();
+      }
       const wasteRate = await WasteRate.findOne({ category: rateCategory });
 
       if (!wasteRate) {

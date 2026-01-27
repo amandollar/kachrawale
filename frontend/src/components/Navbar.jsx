@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Menu, X, LogOut, User, Recycle, LayoutDashboard, IndianRupee } from 'lucide-react';
+import { Menu, X, LogOut, User, Recycle, LayoutDashboard, IndianRupee, ShieldCheck } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -46,6 +46,16 @@ const Navbar = () => {
                 >
                   <IndianRupee className="h-5 w-5" />
                 </Link>
+
+                {user.role === 'admin' && (
+                    <Link 
+                        to="/admin" 
+                        title="Admin Panel"
+                        className="p-3 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all"
+                    >
+                        <ShieldCheck className="h-5 w-5" />
+                    </Link>
+                )}
                 
                 <div className="h-8 w-[1px] bg-slate-100 mx-2" />
                 

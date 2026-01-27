@@ -76,8 +76,8 @@ const SupportManager = ({ onSelectConversation, selectedUserId }) => {
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                         <span className="text-[9px] font-bold text-slate-400 uppercase">
-                            {new Date(conv.lastMessage.createdAt).toLocaleDateString()}
+                         <span className="text-[9px] font-bold text-slate-400 uppercase whitespace-nowrap min-w-fit">
+                            {new Date(conv.lastMessage.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                          </span>
                          <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-slate-900 group-hover:translate-x-1 transition-all" />
                     </div>

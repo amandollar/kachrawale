@@ -9,7 +9,7 @@ const PickupSchema = new mongoose.Schema({
   },
   wasteType: {
     type: String,
-    enum: ['plastic', 'metal', 'e-waste', 'organic'],
+    enum: ['plastic', 'metal', 'e-waste', 'organic', 'paper', 'glass'],
     required: [true, 'Please specify waste type'],
   },
   weight: {
