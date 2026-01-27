@@ -9,7 +9,7 @@ import { toast } from 'react-hot-toast';
 import { 
   LayoutDashboard, Plus, AlertTriangle, Clock, X, User,
   Wallet, TrendingUp, ChevronRight, Info, Activity, ShieldCheck, Zap,
-  Recycle, MessageSquare
+  Recycle, MessageSquare, HelpCircle
 } from 'lucide-react';
 import GPSTracker from '../components/GPSTracker';
 import LiveTrackingMap from '../components/LiveTrackingMap';
@@ -27,6 +27,8 @@ const Dashboard = () => {
   const [showForm, setShowForm] = useState(false);
   const [activeTab, setActiveTab] = useState('pickups'); // 'pickups' or 'messages'
   const [selectedChatId, setSelectedChatId] = useState(null);
+  const [showSupport, setShowSupport] = useState(false);
+  const [supportAdminViewUser, setSupportAdminViewUser] = useState(null);
 
   const isPendingCollector = user?.role === 'collector' && !user?.isVerified;
 
@@ -120,7 +122,7 @@ const Dashboard = () => {
                 >
                     <div className="flex items-center gap-2 mb-4">
                         <Zap className="h-4 w-4 text-emerald-600" />
-                        <span className="text-[10px] font-bold uppercase tracking-[2px] text-slate-400">Dashboard Overivew</span>
+                        <span className="text-[10px] font-bold uppercase tracking-[2px] text-slate-400">Dashboard Overview</span>
                     </div>
                     <h1 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
                         Welcome, <span className="text-slate-500 font-medium">{user?.name.split(' ')[0]}</span>
@@ -182,11 +184,15 @@ const Dashboard = () => {
                         </div>
                         <div className="pt-8 flex items-center gap-4">
                               <div className="flex -space-x-3 overflow-hidden">
-                                 <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-100 overflow-hidden">
-                                     <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=crew1`} alt="" />
+                                 <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-100 overflow-hidden flex items-center justify-center">
+                                     <User className="h-5 w-5 text-slate-400" />
                                  </div>
-                                 <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-100 overflow-hidden">
-                                     <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=crew2`} alt="" />
+                                 <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-100 overflow-hidden flex items-center justify-center">
+                                     {user?.profilePicture ? (
+                                        <img src={user.profilePicture} alt="" className="w-full h-full object-cover" />
+                                     ) : (
+                                        <User className="h-5 w-5 text-slate-400" />
+                                     )}
                                  </div>
                                  <div className="w-10 h-10 rounded-full border-2 border-white bg-emerald-600 flex items-center justify-center text-[10px] font-black text-white">+1</div>
                               </div>
@@ -222,9 +228,12 @@ const Dashboard = () => {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Left Column: Pickup List */}
+            {/* Left Column: Pickup List / Support Area */}
             {!isPendingCollector ? (
-                <div className="lg:col-span-2 space-y-12 pb-12">
+                <div className={cn(
+                    "space-y-12 pb-12",
+                    activeTab === 'support' ? "lg:col-span-3" : "lg:col-span-2"
+                )}>
                     <AnimatePresence>
                         {showForm && (
                             <motion.div 
@@ -274,7 +283,7 @@ const Dashboard = () => {
                             <div className="space-y-6">
                                 <div className="flex justify-between items-end px-4">
                                     <div>
-                                        <h2 className="text-xl font-bold text-slate-900 tracking-tight">Active Operation Log</h2>
+                                        <h2 className="text-xl font-bold text-slate-900 tracking-tight">Recent Activity</h2>
                                         <p className="text-slate-400 text-xs font-medium mt-1">Real-time status of your pickup requests.</p>
                                     </div>
                                 </div>
@@ -320,7 +329,8 @@ const Dashboard = () => {
             )}
             
             {/* Right Column: Profile Summary & Tips */}
-            <div className="space-y-10">
+            {activeTab !== 'support' && (
+                <div className="space-y-10">
                 {user?.role === 'collector' && collectorStats && (
                     <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
                         <div className="relative z-10 flex flex-col justify-between h-full">
@@ -344,12 +354,16 @@ const Dashboard = () => {
 
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 flex flex-col items-center text-center relative group">
                     <div className="relative mb-6">
-                        <div className="w-20 h-20 rounded-full border-4 border-slate-50 overflow-hidden bg-white shadow-sm ring-1 ring-slate-100">
-                            <img 
-                                src={user?.profilePicture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'anonymous'}`} 
-                                alt={user?.name}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            />
+                        <div className="w-20 h-20 rounded-full border-4 border-slate-50 overflow-hidden bg-white shadow-sm ring-1 ring-slate-100 flex items-center justify-center">
+                            {user?.profilePicture ? (
+                                <img 
+                                    src={user.profilePicture} 
+                                    alt={user.name}
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                />
+                            ) : (
+                                <User className="h-8 w-8 text-slate-300" />
+                            )}
                         </div>
                     </div>
                     <h3 className="text-lg font-bold text-slate-900 tracking-tight">{user?.name}</h3>
@@ -370,7 +384,7 @@ const Dashboard = () => {
                 <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm flex flex-col gap-6">
                     <div className="flex items-center gap-2">
                         <Info className="h-3.5 w-3.5 text-slate-400" />
-                        <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-900">Operational Standards</h4>
+                        <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-900">Recycling Guide</h4>
                     </div>
                     <div className="space-y-4">
                         {[
@@ -388,6 +402,7 @@ const Dashboard = () => {
                     </div>
                 </div>
             </div>
+            )}
         </div>
       </div>
 
@@ -395,7 +410,31 @@ const Dashboard = () => {
         {selectedChatId && (
           <ChatWindow pickupId={selectedChatId} onClose={() => setSelectedChatId(null)} />
         )}
+        {(showSupport || supportAdminViewUser) && (
+          <ChatWindow 
+            isSupport={true} 
+            supportUserId={supportAdminViewUser?._id} 
+            onClose={() => {
+              setShowSupport(false);
+              setSupportAdminViewUser(null);
+            }} 
+          />
+        )}
       </AnimatePresence>
+
+      {/* FLOATING SUPPORT BUTTON (Only for non-admins to initiate) */}
+      {user?.role !== 'admin' && (
+        <button 
+          onClick={() => setShowSupport(true)}
+          title="Contact Admin"
+          className="fixed bottom-6 left-6 z-40 bg-white p-4 rounded-xl shadow-xl border border-slate-200 text-slate-400 hover:text-emerald-600 hover:border-emerald-200 transition-all active:scale-95 group"
+        >
+          <HelpCircle className="h-6 w-6" />
+          <span className="absolute left-full ml-4 px-3 py-1.5 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+            Support from Kachrawale
+          </span>
+        </button>
+      )}
     </div>
   );
 };

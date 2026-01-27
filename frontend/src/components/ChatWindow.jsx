@@ -6,7 +6,7 @@ import api from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../utils/cn';
 
-const ChatWindow = ({ pickupId, onClose }) => {
+const ChatWindow = ({ pickupId, isSupport = false, supportUserId, onClose, mode = 'fixed' }) => {
   const { user } = useAuth();
   const { socket } = useSocket();
   const [messages, setMessages] = useState([]);
@@ -14,20 +14,38 @@ const ChatWindow = ({ pickupId, onClose }) => {
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef();
 
+  const isInline = mode === 'inline';
+
+  // Effective support user ID (if isSupport, it's either the specific user an admin is helping, or the user themselves)
+  const targetSupportId = supportUserId || user?._id;
+
   useEffect(() => {
     fetchHistory();
     if (!socket) return;
 
-    socket.emit('join_pickup', pickupId);
+    if (isSupport) {
+      socket.emit('join_support', { userId: targetSupportId, role: user?.role });
+      
+      const handleSupportMessage = (message) => {
+        // Only add if it belongs to this support thread
+        if (message.isSupport && String(message.supportUser) === String(targetSupportId)) {
+          setMessages((prev) => [...prev, message]);
+        }
+      };
 
-    socket.on('receive_message', (message) => {
-      setMessages((prev) => [...prev, message]);
-    });
+      socket.on('receive_support_message', handleSupportMessage);
+      return () => socket.off('receive_support_message', handleSupportMessage);
+    } else {
+      socket.emit('join_pickup', pickupId);
+      
+      const handleMessage = (message) => {
+        setMessages((prev) => [...prev, message]);
+      };
 
-    return () => {
-      socket.off('receive_message');
-    };
-  }, [pickupId, socket]);
+      socket.on('receive_message', handleMessage);
+      return () => socket.off('receive_message', handleMessage);
+    }
+  }, [pickupId, isSupport, targetSupportId, socket]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -36,7 +54,10 @@ const ChatWindow = ({ pickupId, onClose }) => {
   const fetchHistory = async () => {
     try {
       setLoading(true);
-      const { data } = await api.get(`/chat/${pickupId}`);
+      const url = isSupport 
+        ? `/chat/support/${targetSupportId}` 
+        : `/chat/${pickupId}`;
+      const { data } = await api.get(url);
       if (data.success) {
         setMessages(data.data);
       }
@@ -51,22 +72,36 @@ const ChatWindow = ({ pickupId, onClose }) => {
     e.preventDefault();
     if (!newMessage.trim() || !socket) return;
 
-    const payload = {
-      pickupId,
-      senderId: user._id,
-      content: newMessage,
-    };
-
-    socket.emit('send_message', payload);
+    if (isSupport) {
+      const payload = {
+        supportUserId: targetSupportId,
+        senderId: user._id,
+        content: newMessage,
+        isAdmin: user.role === 'admin'
+      };
+      socket.emit('send_support_message', payload);
+    } else {
+      const payload = {
+        pickupId,
+        senderId: user._id,
+        content: newMessage,
+      };
+      socket.emit('send_message', payload);
+    }
     setNewMessage('');
   };
 
   return (
     <motion.div 
-      initial={{ opacity: 0, scale: 0.95, y: 20 }}
+      initial={!isInline ? { opacity: 0, scale: 0.95, y: 20 } : { opacity: 1 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95, y: 20 }}
-      className="fixed bottom-6 right-6 w-[400px] h-[600px] bg-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-200 flex flex-col z-[60] overflow-hidden"
+      exit={!isInline ? { opacity: 0, scale: 0.95, y: 20 } : { opacity: 1 }}
+      className={cn(
+        "bg-white flex flex-col overflow-hidden",
+        isInline 
+          ? "h-full w-full" 
+          : "fixed bottom-6 right-6 w-[400px] h-[600px] rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-200 z-[60]"
+      )}
     >
       {/* Professional Header */}
       <div className="px-6 py-4 bg-slate-900 text-white flex justify-between items-center shrink-0">
@@ -75,16 +110,22 @@ const ChatWindow = ({ pickupId, onClose }) => {
               <MessageSquare className="h-4 w-4" />
            </div>
            <div>
-              <h4 className="text-[11px] font-bold uppercase tracking-[1.5px] leading-tight">Secure Channel</h4>
-              <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Active Connection</p>
+              <h4 className="text-[11px] font-bold uppercase tracking-[1.5px] leading-tight">
+                {isSupport ? 'Kachrawale Support' : 'Pickup Chat'}
+              </h4>
+              <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">
+                {isSupport ? 'Help Desk' : 'Direct Channel'}
+              </p>
            </div>
         </div>
-        <button 
-           onClick={onClose}
-           className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-all"
-        >
-           <X className="h-4 w-4" />
-        </button>
+        {!isInline && (
+          <button 
+             onClick={onClose}
+             className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+          >
+             <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       {/* Messages area */}
@@ -98,7 +139,9 @@ const ChatWindow = ({ pickupId, onClose }) => {
                 <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center">
                     <MessageSquare className="h-5 w-5 text-slate-400" />
                 </div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Log established. Begin communication.</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                    {isSupport ? 'Need help? Message the team below.' : 'Contact established. Send a message.'}
+                </p>
             </div>
         ) : (
             messages.map((msg, i) => {

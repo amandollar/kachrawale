@@ -114,11 +114,11 @@ const LandingPage = () => {
                         <Zap className="h-4 w-4 text-emerald-600" />
                         <span className="text-[10px] font-bold uppercase tracking-[2px] text-slate-400">Core Infrastructure</span>
                     </div>
-                    <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">Systemic Value Generation</h2>
-                    <p className="text-slate-500 font-medium mt-4 text-sm leading-relaxed">A digitized supply chain architecture designed for maximum transparency and logistical efficiency.</p>
+                    <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">Modern Recycling for Everyone</h2>
+                    <p className="text-slate-500 font-medium mt-4 text-sm leading-relaxed">A simple and transparent way to manage waste, track your impact, and earn rewards for a cleaner planet.</p>
                   </div>
                   <Link to="/register" className="text-slate-900 font-bold text-[10px] uppercase tracking-widest flex items-center gap-2 group border-b-2 border-slate-900 pb-1">
-                      Partner Protocols <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                      Join the Team <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
                   </Link>
               </div>
 

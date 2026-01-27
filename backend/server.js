@@ -96,6 +96,41 @@ io.on('connection', (socket) => {
       }
   });
 
+  // --- SUPPORT CHAT EVENTS ---
+  socket.on('join_support', (data) => {
+      // data: { userId, role }
+      if (data.role === 'admin') {
+          socket.join('support_all'); // Admins listen to all support activity
+          console.log(`Admin ${data.userId} joined support_all room`);
+      }
+      socket.join(`support_${data.userId}`); // Join individual support room
+      console.log(`User ${data.userId} joined their support room`);
+  });
+
+  socket.on('send_support_message', async (data) => {
+      // data: { supportUserId, senderId, content, isAdmin }
+      const Message = require('./src/models/Message');
+      try {
+          const message = await Message.create({
+              sender: data.senderId,
+              isSupport: true,
+              supportUser: data.supportUserId,
+              content: data.content
+          });
+          
+          const populatedMessage = await message.populate('sender', 'name profilePicture role');
+          
+          // 1. Notify the user seeking support
+          io.to(`support_${data.supportUserId}`).emit('receive_support_message', populatedMessage);
+          
+          // 2. Notify all admins (so they see new messages in their global support view)
+          io.to('support_all').emit('receive_support_message', populatedMessage);
+          
+      } catch (err) {
+          console.error('Support Chat Error:', err);
+      }
+  });
+
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
   });

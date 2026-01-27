@@ -399,7 +399,11 @@ const PickupDetailModal = ({ pickup, onClose, onAccept, processingId, onStatusUp
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden">
-                                                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${pickup.citizen?.name || 'citizen'}`} alt="" className="w-full h-full object-cover" />
+                                                    {pickup.citizen?.profilePicture ? (
+                                                        <img src={pickup.citizen.profilePicture} alt="" className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <User className="h-4 w-4 text-slate-400" />
+                                                    )}
                                                 </div>
                                                 <div>
                                                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Citizen</p>
@@ -417,7 +421,11 @@ const PickupDetailModal = ({ pickup, onClose, onAccept, processingId, onStatusUp
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center overflow-hidden">
-                                                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${pickup.collector?.name || 'collector'}`} alt="" className="w-full h-full object-cover" />
+                                                        {pickup.collector?.profilePicture ? (
+                                                            <img src={pickup.collector.profilePicture} alt="" className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <User className="h-4 w-4 text-white" />
+                                                        )}
                                                     </div>
                                                     <div>
                                                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Dispatch Personnel</p>

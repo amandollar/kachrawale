@@ -1,5 +1,5 @@
 import React from 'react';
-import { MessageSquare, User, Clock, ChevronRight } from 'lucide-react';
+import { MessageSquare, User, Clock, ChevronRight, Recycle } from 'lucide-react';
 import { cn } from '../utils/cn';
 
 const MessageList = ({ pickups, onSelectConversation, selectedId }) => {
@@ -30,11 +30,15 @@ const MessageList = ({ pickups, onSelectConversation, selectedId }) => {
             )}
           >
             <div className="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center overflow-hidden shrink-0 border border-slate-200">
-               <img 
-                  src={pickup.images[0] || `https://api.dicebear.com/7.x/identicon/svg?seed=${pickup._id}`} 
-                  className="w-full h-full object-cover grayscale-[0.3]"
-                  alt=""
-               />
+               {pickup.images[0] ? (
+                  <img 
+                      src={pickup.images[0]} 
+                      className="w-full h-full object-cover grayscale-[0.3]"
+                      alt=""
+                  />
+               ) : (
+                  <Recycle className="h-5 w-5 text-slate-400" />
+               )}
             </div>
 
             <div className="flex-1 min-w-0">

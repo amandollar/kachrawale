@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, Check, X, Truck, Phone, FileText, User, IndianRupee, Edit, Plus, Trash2 } from 'lucide-react';
+import { ShieldCheck, Check, X, Truck, Phone, FileText, User, IndianRupee, Edit, Plus, Trash2, MessageSquare } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import SupportCenter from '../components/SupportCenter';
 
 const AdminPanel = () => {
   const [users, setUsers] = useState([]);
@@ -140,6 +141,13 @@ const AdminPanel = () => {
                 >
                     Rate Manager
                 </button>
+                <div className="w-px bg-gray-200 my-2 mx-1"></div>
+                <button 
+                    onClick={() => setActiveTab('support')}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${activeTab === 'support' ? 'bg-green-100 text-green-800' : 'text-gray-600 hover:bg-gray-50'}`}
+                >
+                    <MessageSquare className="h-4 w-4" /> Support Center
+                </button>
             </div>
         </div>
 
@@ -223,6 +231,19 @@ const AdminPanel = () => {
                         ))}
                     </div>
                 )}
+            </div>
+        )}
+
+        {/* SUPPORT CENTER TAB */}
+        {activeTab === 'support' && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div className="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 className="text-xl font-semibold text-gray-800">Support Center</h2>
+                        <p className="text-gray-500 text-sm mt-1">Manage user inquiries and real-time support chats.</p>
+                    </div>
+                </div>
+                <SupportCenter />
             </div>
         )}
 
