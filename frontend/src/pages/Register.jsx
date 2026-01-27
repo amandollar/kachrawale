@@ -82,8 +82,8 @@ const Register = () => {
                 <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center mb-6">
                     <Recycle className="h-6 w-6 text-white" />
                 </div>
-                <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Provision Account</h2>
-                <p className="text-slate-400 font-bold uppercase tracking-[2px] text-[9px] mt-3">Node Initialization Protocol</p>
+                <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Create Account</h2>
+                <p className="text-slate-400 font-bold uppercase tracking-[2px] text-[9px] mt-3">Join our community</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-10">
@@ -97,7 +97,7 @@ const Register = () => {
                             role === 'citizen' ? "bg-white text-slate-900 shadow-sm border border-slate-100" : "text-slate-400 hover:text-slate-600"
                         )}
                     >
-                        Citizen Unit
+                        Citizen
                     </button>
                     <button
                         type="button"
@@ -107,7 +107,7 @@ const Register = () => {
                             role === 'collector' ? "bg-white text-slate-900 shadow-sm border border-slate-100" : "text-slate-400 hover:text-slate-600"
                         )}
                     >
-                        Logistics Node
+                        Collector
                     </button>
                 </div>
 
@@ -121,7 +121,7 @@ const Register = () => {
                                 type="text"
                                 required
                                 className="block w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-slate-100 focus:border-slate-900 focus:bg-white rounded-lg font-bold text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
-                                placeholder="Full Identity"
+                                placeholder="Full Name"
                                 value={formData.name}
                                 onChange={handleInputChange}
                             />
@@ -133,7 +133,7 @@ const Register = () => {
                                 type="email"
                                 required
                                 className="block w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-slate-100 focus:border-slate-900 focus:bg-white rounded-lg font-bold text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
-                                placeholder="Email Endpoint"
+                                placeholder="Email Address"
                                 value={formData.email}
                                 onChange={handleInputChange}
                             />
@@ -148,7 +148,7 @@ const Register = () => {
                                 type="password"
                                 required
                                 className="block w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-slate-100 focus:border-slate-900 focus:bg-white rounded-lg font-bold text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
-                                placeholder="Access Key"
+                                placeholder="Password"
                                 value={formData.password}
                                 onChange={handleInputChange}
                             />
@@ -160,7 +160,7 @@ const Register = () => {
                                 type="tel"
                                 required
                                 className="block w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-slate-100 focus:border-slate-900 focus:bg-white rounded-lg font-bold text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
-                                placeholder="Secure Line"
+                                placeholder="Phone Number"
                                 value={formData.phone}
                                 onChange={handleInputChange}
                             />
@@ -174,7 +174,7 @@ const Register = () => {
                             type="text"
                             required
                             className="block w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-slate-100 focus:border-slate-900 focus:bg-white rounded-lg font-bold text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
-                            placeholder="Geographic Coordinate (Formatted)"
+                            placeholder="Full Address"
                             value={formData.address.formattedAddress}
                             onChange={handleInputChange}
                         />
@@ -192,7 +192,7 @@ const Register = () => {
                         >
                             <div className="flex items-center gap-2 mb-2">
                                 <Truck className="h-4 w-4 text-slate-400" />
-                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Asset Verification</span>
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Vehicle Details</span>
                             </div>
                             
                             <div className="flex gap-2">
@@ -220,10 +220,11 @@ const Register = () => {
                                     type="text"
                                     required
                                     className="block w-full pl-12 pr-6 py-3.5 bg-white border border-slate-100 focus:border-slate-900 rounded-lg font-bold text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
-                                    placeholder="Asset ID / License Plate"
+                                    placeholder="Vehicle Number / License Plate"
                                     value={formData.collectorDetails.vehicleNumber}
                                     onChange={handleInputChange}
-                                />
+                                >
+                                </input>
                             </div>
                         </motion.div>
                     )}
@@ -236,20 +237,20 @@ const Register = () => {
                         className="w-full flex justify-center py-4 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-bold text-[10px] uppercase tracking-[2px] shadow-lg shadow-slate-200 transition-all active:scale-[0.98] items-center gap-3 disabled:opacity-50"
                     >
                         {isSubmitting ? <Loader2 className="animate-spin h-4 w-4" /> : (
-                            <>Initialize Network Node <ArrowRight className="h-4 w-4 text-slate-400" /></>
+                            <>Register <ArrowRight className="h-4 w-4 text-slate-400" /></>
                         )}
                     </button>
                 </div>
 
                 <div className="text-center">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-loose">
-                        By deploying, you agree to our <a href="#" className="text-slate-900 underline underline-offset-4 decoration-slate-200 transition-all">Operational Protocols</a>
+                        By registering, you agree to our <a href="#" className="text-slate-900 underline underline-offset-4 decoration-slate-200 transition-all">Terms of Service</a>
                     </p>
                     <div className="mt-8 pt-6 border-t border-slate-50">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            Existing node?{' '}
+                            Already have an account?{' '}
                             <Link to="/login" className="text-slate-900 hover:underline underline-offset-8 decoration-slate-200 transition-all">
-                                Establish Re-entry
+                                Login
                             </Link>
                         </p>
                     </div>

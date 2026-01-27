@@ -66,7 +66,7 @@ const UserSchema = new mongoose.Schema({
     licenseNumber: String,
     vehicleType: {
       type: String,
-      enum: ['Truck', 'Van', 'Rickshaw', 'Bike'],
+      enum: ['truck', 'van', 'bicycle', 'scooter', 'tricycle', 'electric_van'],
     }
   },
   createdAt: {

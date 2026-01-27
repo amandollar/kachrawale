@@ -48,7 +48,7 @@ exports.registerSchema = z.object({
     z.object({
       vehicleNumber: z.string().optional(),
       licenseNumber: z.string().optional(),
-      vehicleType: z.enum(['truck', 'van', 'bicycle', 'scooter']).optional()
+      vehicleType: z.enum(['truck', 'van', 'bicycle', 'scooter', 'tricycle', 'electric_van']).optional()
     }).optional()
   )
 });
