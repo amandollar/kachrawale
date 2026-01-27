@@ -77,7 +77,7 @@ const LandingPage = () => {
                         INDIA'S TRUSTED WASTE NETWORK
                     </motion.div>
                     
-                    <motion.h1 variants={itemVariants} className="text-4xl md:text-5xl lg:text-7xl font-display font-bold text-gray-900 mb-6 leading-[1.1] tracking-tight">
+                    <motion.h1 variants={itemVariants} className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-display font-bold text-gray-900 mb-6 leading-[1.1] tracking-tight">
                         Turn Your Waste <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-green-600 to-saffron-600">Into Wealth.</span>
                     </motion.h1>

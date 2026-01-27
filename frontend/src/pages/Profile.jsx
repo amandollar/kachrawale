@@ -4,8 +4,8 @@ import api from '../utils/api';
 import EditProfileForm from '../components/EditProfileForm';
 import { 
   User, Mail, Phone, MapPin, Truck, Hash, Edit3, Camera, 
-  ShieldCheck, Wallet, BarChart3, TrendingUp, Recycle, Leaf,
-  Clock, CheckCircle2
+  ShieldCheck, Wallet, TrendingUp, Recycle, Leaf,
+  Clock, CheckCircle2, ChevronRight, Settings, ExternalLink
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../utils/cn';
@@ -35,11 +35,8 @@ const Profile = () => {
   const stats = useMemo(() => {
     const completed = pickups.filter(p => p.status === 'COMPLETED' || p.status === 'SETTLED');
     const totalWeight = completed.reduce((acc, p) => acc + (p.verifiedWeight || p.weight || 0), 0);
-    
-    // Logic: Collectors earn 5% commission, Citizens earn 100% of transaction value
     const baseValue = completed.reduce((acc, p) => acc + (p.finalAmount || 0), 0);
     const totalEarnings = user?.role === 'collector' ? baseValue * 0.05 : baseValue;
-    
     const carbonSaved = totalWeight * 2.5; 
     
     return {
@@ -53,224 +50,242 @@ const Profile = () => {
 
   const isPendingCollector = user?.role === 'collector' && !user?.isVerified;
 
+  // Mock weekly activity for the "graph"
+  const weeklyActivity = [35, 65, 45, 85, 55, 90, 70];
+
   return (
-    <div className="min-h-screen bg-gray-50/50 p-4 sm:p-8">
+    <div className="min-h-screen bg-[#F7F8FA] text-slate-900 selection:bg-emerald-100 selection:text-emerald-900">
       {/* Edit Profile Modal */}
       <AnimatePresence>
         {showEditProfile && <EditProfileForm onClose={() => setShowEditProfile(false)} />}
       </AnimatePresence>
 
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl mx-auto"
-      >
-        <div className="mb-10">
-            <h1 className="text-4xl font-black text-gray-900 flex items-center gap-3 tracking-tight">
-                <User className="h-10 w-10 text-green-600" /> 
-                My Profile
-            </h1>
-            <p className="text-gray-400 font-bold uppercase tracking-widest text-xs ml-1 mt-2">Manage your account settings and preferences</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Avatar & Basic Info Card */}
-          <div className="md:col-span-1 space-y-6">
-            <motion.div 
-              whileHover={{ y: -5 }}
-              className="bg-white rounded-[40px] shadow-xl shadow-gray-200/50 border border-gray-100 p-8 relative overflow-hidden group"
-            >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-green-50 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700 ease-out" />
-              
-              <div className="relative z-10 flex flex-col items-center">
-                <div className="relative mb-6">
-                  <div className="w-40 h-40 rounded-[42px] overflow-hidden border-8 border-white shadow-2xl relative group/avatar">
+      <div className="max-w-5xl mx-auto px-4 py-8 md:py-12">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-10 mb-16 px-4">
+            <div className="relative group">
+                <div className="w-36 h-36 md:w-44 md:h-44 rounded-full border-[6px] border-white shadow-premium overflow-hidden bg-white ring-1 ring-slate-100">
                     <img 
-                      src={user?.profilePicture || 'https://via.placeholder.com/150'} 
+                      src={user?.profilePicture} 
                       alt={user?.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-                        <Camera className="text-white h-8 w-8" />
-                    </div>
-                  </div>
-                  <div className="absolute -bottom-2 -right-2">
-                    <span className={cn(
-                      "capitalize px-6 py-2 rounded-2xl text-[12px] font-black tracking-widest shadow-lg border-4 border-white",
-                      isPendingCollector ? 'bg-yellow-400 text-white' : 'bg-green-600 text-white'
-                    )}>
-                      {user?.role}
-                    </span>
-                  </div>
-                </div>
-                
-                <h3 className="text-2xl font-black text-gray-900 tracking-tight text-center">{user?.name}</h3>
-                <div className="flex items-center gap-2 mt-1 text-gray-400">
-                    <ShieldCheck className={cn("h-4 w-4", user?.isVerified ? "text-blue-500" : "text-gray-300")} />
-                    <span className="font-bold uppercase tracking-widest text-[10px]">{user?.isVerified ? 'Verified Account' : 'Pending Verification'}</span>
-                </div>
-              </div>
-
-              <button 
-                onClick={() => setShowEditProfile(true)}
-                className="w-full mt-8 flex items-center justify-center gap-2 bg-green-600 text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-green-700 transition-all shadow-xl shadow-green-200 active:scale-95"
-              >
-                <Edit3 className="h-5 w-5" /> Edit Profile
-              </button>
-            </motion.div>
-
-            {/* Account Status Card */}
-            <div className="bg-gray-900 rounded-[40px] p-8 text-white relative overflow-hidden shadow-2xl shadow-gray-900/20">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full -mr-16 -mt-16 blur-2xl" />
-                <h4 className="text-xs font-black uppercase tracking-widest mb-6 flex items-center gap-2 text-green-500">
-                     Account Security
-                </h4>
-                <div className="space-y-4">
-                    <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-400">Two-Factor Auth</span>
-                        <span className="text-red-400 font-bold uppercase tracking-tighter text-[10px]">Disabled</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm">
-                        <span className="text-gray-400">Email Updates</span>
-                        <span className="text-green-400 font-bold uppercase tracking-tighter text-[10px]">Enabled</span>
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center cursor-pointer backdrop-blur-[2px]">
+                        <Camera className="text-white h-7 w-7" />
                     </div>
                 </div>
-            </div>
-          </div>
-
-          {/* Details Column */}
-          <div className="md:col-span-2 space-y-8">
-            <div className="bg-white rounded-[40px] shadow-sm border border-gray-100 p-10">
-              <h2 className="text-xl font-black text-gray-900 uppercase tracking-widest flex items-center gap-2 mb-10">
-                  <div className="w-2 h-8 bg-green-500 rounded-full" />
-                  Detailed Information
-              </h2>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-[3px] text-gray-400 ml-1">Email Address</label>
-                  <div className="flex items-center gap-4 bg-gray-50 p-5 rounded-3xl border-2 border-transparent hover:border-green-100 transition-all group">
-                    <div className="p-3 bg-white rounded-2xl shadow-sm text-gray-400 group-hover:text-green-600 transition-colors">
-                      <Mail className="h-5 w-5" />
-                    </div>
-                    <span className="font-bold text-gray-700">{user?.email}</span>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-[3px] text-gray-400 ml-1">Phone Number</label>
-                  <div className="flex items-center gap-4 bg-gray-50 p-5 rounded-3xl border-2 border-transparent hover:border-green-100 transition-all group">
-                    <div className="p-3 bg-white rounded-2xl shadow-sm text-gray-400 group-hover:text-green-600 transition-colors">
-                      <Phone className="h-5 w-5" />
-                    </div>
-                    <span className="font-bold text-gray-700">{user?.phone || 'Not provided'}</span>
-                  </div>
-                </div>
-
-                <div className="sm:col-span-2 space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-[3px] text-gray-400 ml-1">Primary Address</label>
-                  <div className="flex items-start gap-4 bg-gray-50 p-5 rounded-3xl border-2 border-transparent hover:border-green-100 transition-all group">
-                    <div className="p-3 bg-white rounded-2xl shadow-sm text-gray-400 group-hover:text-green-600 transition-colors">
-                      <MapPin className="h-5 w-5" />
-                    </div>
-                    <span className="font-bold text-gray-700 pt-3">{user?.address?.formattedAddress || 'No address set'}</span>
-                  </div>
-                </div>
-              </div>
-
-              {user?.role === 'collector' && (
-                <>
-                  <div className="h-px bg-gray-100 my-12" />
-                  <h2 className="text-xl font-black text-gray-900 uppercase tracking-widest flex items-center gap-2 mb-10">
-                      <div className="w-2 h-8 bg-blue-500 rounded-full" />
-                      Vehicle Details
-                  </h2>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-[3px] text-gray-400 ml-1">Vehicle Type</label>
-                      <div className="flex items-center gap-4 bg-blue-50/50 p-5 rounded-3xl border-2 border-transparent hover:border-blue-100 transition-all group">
-                        <div className="p-3 bg-white rounded-2xl shadow-sm text-blue-400 group-hover:text-blue-600 transition-colors">
-                          <Truck className="h-5 w-5" />
-                        </div>
-                        <span className="font-black text-blue-900">{user?.collectorDetails?.vehicleType || 'Unknown'}</span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-[3px] text-gray-400 ml-1">Vehicle Number</label>
-                      <div className="flex items-center gap-4 bg-blue-50/50 p-5 rounded-3xl border-2 border-transparent hover:border-blue-100 transition-all group">
-                        <div className="p-3 bg-white rounded-2xl shadow-sm text-blue-400 group-hover:text-blue-600 transition-colors">
-                          <Hash className="h-5 w-5" />
-                        </div>
-                        <span className="font-black text-blue-900">{user?.collectorDetails?.vehicleNumber || 'Unknown'}</span>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Analytics Section */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {user?.role === 'citizen' ? (
-                    <>
-                        <div className="bg-amber-500 rounded-[40px] p-8 text-white relative overflow-hidden group">
-                            <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform">
-                                <Wallet className="h-32 w-32" />
-                            </div>
-                            <h5 className="font-black uppercase tracking-widest text-[10px] mb-2 opacity-60">Total Earnings</h5>
-                            <div className="text-4xl font-black">₹{stats.totalEarnings.toFixed(2)}</div>
-                            <p className="text-xs mt-4 font-medium opacity-80">Money earned from your waste!</p>
-                        </div>
-                        <div className="bg-green-600 rounded-[40px] p-8 text-white relative overflow-hidden group">
-                            <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform">
-                                <Recycle className="h-32 w-32" />
-                            </div>
-                            <h5 className="font-black uppercase tracking-widest text-[10px] mb-2 opacity-60">Waste Recycled</h5>
-                            <div className="text-4xl font-black">{stats.totalWeight}<span className="text-lg ml-1">kg</span></div>
-                            <p className="text-xs mt-4 font-medium opacity-80">Across {stats.totalPickups} successful pickups.</p>
-                        </div>
-                        <div className="bg-white rounded-[40px] p-8 border border-gray-100 shadow-sm relative overflow-hidden group sm:col-span-2 lg:col-span-1">
-                             <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform text-green-600">
-                                <Leaf className="h-32 w-32" />
-                            </div>
-                            <h5 className="font-black uppercase tracking-widest text-[10px] mb-2 text-gray-400">Carbon Saved</h5>
-                            <div className="text-4xl font-black text-gray-900">{stats.carbonSaved.toFixed(1)} <span className="text-lg text-green-500">kg</span></div>
-                            <div className="w-full bg-gray-100 h-2 rounded-full mt-6 overflow-hidden">
-                                <motion.div 
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${Math.min((stats.carbonSaved / 100) * 100, 100)}%` }}
-                                    transition={{ duration: 1, delay: 0.5 }}
-                                    className="bg-green-500 h-full rounded-full" 
-                                />
-                            </div>
-                        </div>
-                    </>
-                ) : (
-                    <>
-                        <div className="bg-blue-600 rounded-[40px] p-8 text-white relative overflow-hidden group">
-                             <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform">
-                                <Wallet className="h-32 w-32" />
-                            </div>
-                            <h5 className="font-black uppercase tracking-widest text-[10px] mb-2 opacity-60">Total Earnings</h5>
-                            <div className="text-4xl font-black">₹{stats.totalEarnings.toFixed(2)}</div>
-                            <p className="text-xs mt-4 font-medium opacity-80">{stats.totalPickups} pickups completed successfully!</p>
-                        </div>
-                        <div className="bg-white rounded-[40px] p-8 border border-gray-100 shadow-sm relative overflow-hidden group">
-                             <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform text-blue-600">
-                                <BarChart3 className="h-32 w-32" />
-                            </div>
-                            <h5 className="font-black uppercase tracking-widest text-[10px] mb-2 text-gray-400">Efficiency</h5>
-                            <div className="text-4xl font-black text-gray-900">{(stats.totalWeight / (stats.totalPickups || 1)).toFixed(1)} <span className="text-lg text-blue-500">kg/avg</span></div>
-                            <p className="text-xs mt-4 font-medium text-gray-400">Average weight per pickup collected.</p>
-                        </div>
-                    </>
+                {user?.isVerified && (
+                    <motion.div 
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute bottom-3 right-3 bg-emerald-500 text-white p-2 rounded-full border-4 border-white shadow-lg"
+                    >
+                        <ShieldCheck className="h-5 w-5" />
+                    </motion.div>
                 )}
             </div>
-          </div>
+
+            <div className="flex-1 text-center md:text-left pt-6">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-2 animate-in fade-in slide-in-from-left-4 duration-700">
+                    <h1 className="text-3xl sm:text-4xl font-bold text-slate-800 tracking-tight">{user?.name}</h1>
+                    <span className={cn(
+                        "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-[2px] shadow-sm ring-1 ring-inset",
+                        isPendingCollector 
+                            ? "bg-amber-50 text-amber-600 ring-amber-100" 
+                            : "bg-emerald-50 text-emerald-600 ring-emerald-100"
+                    )}>
+                        {user?.role}
+                    </span>
+                </div>
+                <p className="text-slate-500 font-medium mb-8 text-base sm:text-lg break-all">{user?.email}</p>
+                
+                <div className="flex flex-wrap justify-center md:justify-start gap-4">
+                    <button 
+                        onClick={() => setShowEditProfile(true)}
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-bold text-sm transition-all shadow-xl shadow-slate-200 active:scale-[0.98]"
+                    >
+                        <Edit3 className="h-4 w-4" /> Edit Profile
+                    </button>
+                    <button className="flex-1 sm:flex-none flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3 bg-white hover:bg-slate-50 text-slate-700 border-2 border-slate-100 rounded-2xl font-bold text-sm transition-all shadow-sm">
+                        <Settings className="h-4 w-4 text-slate-400" /> Settings
+                    </button>
+                </div>
+            </div>
         </div>
-      </motion.div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            <motion.div whileHover={{ y: -5 }} className="bg-white p-8 rounded-3xl border border-slate-100 shadow-premium flex flex-col gap-6 group">
+                <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-all duration-500">
+                    <Wallet className="h-8 w-8" />
+                </div>
+                <div>
+                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Total Earnings</p>
+                    <p className="text-3xl font-bold text-slate-800 tracking-tight">₹{stats.totalEarnings.toFixed(2)}</p>
+                </div>
+            </motion.div>
+            <motion.div whileHover={{ y: -5 }} className="bg-white p-8 rounded-3xl border border-slate-100 shadow-premium flex flex-col gap-6 group text-white bg-emerald-600 border-none">
+                <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-white backdrop-blur-sm">
+                    <Recycle className="h-8 w-8" />
+                </div>
+                <div>
+                    <p className="text-emerald-100 text-[10px] font-black uppercase tracking-widest mb-2">Waste Managed</p>
+                    <p className="text-3xl font-bold tracking-tight">{stats.totalWeight}<span className="text-lg ml-1 font-semibold opacity-80">kg</span></p>
+                </div>
+            </motion.div>
+            <motion.div whileHover={{ y: -5 }} className="bg-white p-8 rounded-3xl border border-slate-100 shadow-premium flex flex-col gap-6 group">
+                <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500">
+                    <Leaf className="h-8 w-8" />
+                </div>
+                <div>
+                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Carbon Credit</p>
+                    <p className="text-3xl font-bold text-slate-800 tracking-tight">{stats.carbonSaved.toFixed(1)}<span className="text-lg ml-1 font-semibold text-blue-400">kg</span></p>
+                </div>
+            </motion.div>
+        </div>
+
+        {/* Info Blocks */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            {/* Left Col: Contact & Details */}
+            <div className="lg:col-span-2 space-y-8">
+                <div className="bg-white rounded-3xl border border-slate-100 shadow-premium overflow-hidden">
+                    <div className="px-10 py-8 border-b border-slate-50 flex justify-between items-center">
+                        <h2 className="text-xl font-bold text-slate-800 tracking-tight">Personal Information</h2>
+                        <button className="text-emerald-600 font-bold text-xs uppercase tracking-widest flex items-center gap-1 hover:text-emerald-700 transition-colors">
+                            Update <ExternalLink className="h-3 w-3" />
+                        </button>
+                    </div>
+                    <div className="p-10 grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-10">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Phone</label>
+                            <div className="flex items-center gap-3 text-slate-700 font-bold text-base">
+                                <div className="p-2 bg-slate-50 rounded-lg"><Phone className="h-4 w-4 text-slate-400" /></div>
+                                {user?.phone || 'Not provided'}
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Email</label>
+                            <div className="flex items-center gap-3 text-slate-700 font-bold text-base">
+                                <div className="p-2 bg-slate-50 rounded-lg"><Mail className="h-4 w-4 text-slate-400" /></div>
+                                {user?.email}
+                            </div>
+                        </div>
+                        <div className="sm:col-span-2 space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Primary Collection Address</label>
+                            <div className="flex items-start gap-3 text-slate-600 font-bold leading-relaxed bg-slate-50/50 p-4 rounded-2xl border border-slate-100 shadow-inner">
+                                <div className="p-2 bg-white rounded-lg shadow-sm mt-1"><MapPin className="h-4 w-4 text-emerald-500" /></div>
+                                <span className="pt-2">{user?.address?.formattedAddress || 'No primary address set'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {user?.role === 'collector' && (
+                    <div className="bg-white rounded-3xl border border-slate-100 shadow-premium overflow-hidden">
+                        <div className="px-10 py-8 border-b border-slate-50">
+                            <h2 className="text-xl font-bold text-slate-800 tracking-tight">Vehicle Logistics</h2>
+                        </div>
+                        <div className="p-10 grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-10">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Vehicle Category</label>
+                                <div className="flex items-center gap-3 text-slate-700 font-bold text-base">
+                                    <div className="p-2 bg-slate-50 rounded-lg"><Truck className="h-4 w-4 text-slate-400" /></div>
+                                    {user?.collectorDetails?.vehicleType || 'Unknown'}
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Registration Hash</label>
+                                <div className="flex items-center gap-3 text-slate-700 font-bold text-base">
+                                    <div className="p-2 bg-slate-50 rounded-lg"><Hash className="h-4 w-4 text-slate-400" /></div>
+                                    {user?.collectorDetails?.vehicleNumber || 'Unknown'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Right Col: Activity/Badges */}
+            <div className="lg:col-span-1 space-y-8">
+                <div className="bg-white rounded-3xl border border-slate-100 shadow-premium p-8 overflow-hidden relative">
+                    <div className="flex justify-between items-center mb-8">
+                        <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[2px]">Pickup Activity</h3>
+                        <TrendingUp className="h-4 w-4 text-emerald-500" />
+                    </div>
+                    
+                    {/* Visual Activity Graph */}
+                    <div className="flex items-end justify-between h-24 mb-10 px-1">
+                        {weeklyActivity.map((val, i) => (
+                            <div key={i} className="group relative flex flex-col items-center gap-2 w-full">
+                                <motion.div 
+                                    initial={{ height: 0 }}
+                                    animate={{ height: `${val}%` }}
+                                    transition={{ duration: 1, delay: i * 0.1 }}
+                                    className={cn(
+                                        "w-[6px] rounded-full transition-all duration-300",
+                                        i === 5 ? "bg-emerald-600 shadow-[0_0_12px_rgba(16,185,129,0.4)]" : "bg-slate-100 group-hover:bg-slate-200"
+                                    )}
+                                />
+                                <span className="text-[8px] font-bold text-slate-300 group-hover:text-slate-500">
+                                    {['M', 'T', 'W', 'T', 'F', 'S', 'S'][i]}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+                                    <CheckCircle2 className="h-6 w-6" />
+                                </div>
+                                <span className="font-bold text-slate-700 text-sm">Completed</span>
+                            </div>
+                            <span className="font-extrabold text-lg text-slate-900">{stats.totalPickups}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 text-slate-500">
+                                    <Clock className="h-6 w-6" />
+                                </div>
+                                <span className="font-bold text-slate-700 text-sm">Active Jobs</span>
+                            </div>
+                            <span className="font-extrabold text-lg text-slate-900">{stats.activePickups}</span>
+                        </div>
+                    </div>
+                    
+                    <div className="h-[2px] bg-slate-50 my-10" />
+                    
+                    <button className="w-full flex items-center justify-center gap-3 text-slate-900 font-bold text-xs uppercase tracking-[2px] hover:bg-slate-50 py-4 border-2 border-slate-100 rounded-2xl transition-all active:scale-[0.98]">
+                        Full History <ChevronRight className="h-4 w-4" />
+                    </button>
+                </div>
+
+                <div className="bg-[#111827] rounded-3xl p-10 text-white relative overflow-hidden shadow-2xl shadow-slate-900/40 border border-slate-800">
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-[60px]" />
+                    <div className="relative z-10">
+                        <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-6">
+                             <Leaf className="h-5 w-5 text-emerald-400" />
+                        </div>
+                        <h4 className="text-[11px] font-black uppercase tracking-[3px] text-emerald-500 mb-6">Environment Impact</h4>
+                        <p className="text-slate-300 text-base leading-relaxed font-bold italic">
+                            "One person's small act of recycling today becomes a cleaner world for someone tomorrow."
+                        </p>
+                        <div className="mt-10 flex items-center gap-4">
+                            <div className="flex -space-x-3">
+                                {[1, 2, 3].map(i => (
+                                    <div key={i} className="w-8 h-8 rounded-full border-2 border-slate-900 overflow-hidden bg-slate-800 ring-2 ring-emerald-500/20">
+                                        <img src={`https://i.pravatar.cc/100?u=${i}`} alt="user" className="w-full h-full object-cover grayscale opacity-60" />
+                                    </div>
+                                ))}
+                            </div>
+                            <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Joined by 2.4k others</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
     </div>
   );
 };

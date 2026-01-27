@@ -8,7 +8,7 @@
   }
 
   body {
-    @apply font-sans antialiased text-gray-800 bg-white;
+    @apply font-sans antialiased text-slate-800 bg-[#F7F8FA];
   }
 }
 
@@ -22,6 +22,17 @@
 }
 
 @layer utilities {
+  .shadow-premium {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05), 0 4px 10px -5px rgba(0, 0, 0, 0.02);
+  }
+
+  .mesh-gradient {
+    background-color: #ffffff;
+    background-image:
+      radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.05) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.05) 0px, transparent 50%);
+  }
+
   .animate-marquee {
     animation: marquee 25s linear infinite;
   }

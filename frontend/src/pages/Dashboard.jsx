@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
@@ -6,12 +6,15 @@ import api from '../utils/api';
 import PickupForm from '../components/PickupForm';
 import PickupList from '../components/PickupList';
 import { toast } from 'react-hot-toast';
-import { LayoutDashboard, Plus, Edit2, AlertTriangle, Clock, Map, X, User } from 'lucide-react';
+import { 
+  LayoutDashboard, Plus, AlertTriangle, Clock, X, User,
+  Wallet, TrendingUp, ChevronRight, Info, Activity, ShieldCheck, Zap,
+  Recycle
+} from 'lucide-react';
 import GPSTracker from '../components/GPSTracker';
 import LiveTrackingMap from '../components/LiveTrackingMap';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../utils/cn';
-import { Wallet, TrendingUp } from 'lucide-react';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -20,7 +23,6 @@ const Dashboard = () => {
   const [pickups, setPickups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [activeTrackingPickup, setActiveTrackingPickup] = useState(null);
 
   const isPendingCollector = user?.role === 'collector' && !user?.isVerified;
 
@@ -46,7 +48,6 @@ const Dashboard = () => {
     }
   }, [user, isPendingCollector]);
 
-  // Real-time updates
   useEffect(() => {
     if (!socket) return;
 
@@ -56,13 +57,11 @@ const Dashboard = () => {
         
         if (amICitizen || amICollector) {
             fetchPickups(); 
-            
             if (amICitizen) {
                 if (data.status === 'ON_THE_WAY') {
                     toast.success("Collector is on the way! Live tracking enabled.");
                 } else if (data.status === 'COMPLETED') {
                    toast.success("Pickup completed!");
-                   setActiveTrackingPickup(null);
                 }
             }
         }
@@ -89,7 +88,7 @@ const Dashboard = () => {
 
   const myActivePickup = pickups.find(p => p.status === 'ON_THE_WAY');
 
-  const collectorStats = React.useMemo(() => {
+  const collectorStats = useMemo(() => {
     if (user?.role !== 'collector') return null;
     const completed = pickups.filter(p => p.status === 'COMPLETED' || p.status === 'SETTLED');
     const totalTransactions = completed.reduce((acc, p) => acc + (p.finalAmount || 0), 0);
@@ -100,203 +99,258 @@ const Dashboard = () => {
   }, [pickups, user?.role]);
 
   return (
-    <div className="min-h-screen bg-gray-50/50 p-4 sm:p-8">
+    <div className="min-h-screen bg-[#F7F8FA] text-slate-900 selection:bg-emerald-100 selection:text-emerald-900 pb-20">
       {/* GPS TRACKER FOR COLLECTOR */}
       {user?.role === 'collector' && myActivePickup && (
           <GPSTracker pickupId={myActivePickup._id} />
       )}
 
-
-
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-6xl mx-auto"
-      >
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
-            <div className="space-y-1">
-                <h1 className="text-4xl font-black text-gray-900 flex items-center gap-3 tracking-tight">
-                    <LayoutDashboard className="h-10 w-10 text-green-600" /> 
-                    Dashboard
-                </h1>
-                <p className="text-gray-400 font-bold uppercase tracking-widest text-xs ml-1">Welcome back, {user?.name}!</p>
-            </div>
-            
-            {user?.role === 'citizen' && (
-                <button 
-                    onClick={() => setShowForm(!showForm)}
-                    className={cn(
-                        "px-6 py-3 rounded-2xl transition-all flex items-center gap-2 font-black text-sm uppercase tracking-widest shadow-xl active:scale-95",
-                        showForm 
-                            ? "bg-white text-gray-500 border-2 border-gray-100 hover:bg-gray-50 shadow-gray-200/50" 
-                            : "bg-green-600 text-white hover:bg-green-700 shadow-green-200"
-                    )}
+      {/* Hero Section Container */}
+      <div className="mesh-gradient border-b border-slate-100 shadow-sm relative overflow-hidden">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-12 md:py-20 relative z-10">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-10">
+                <motion.div 
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
                 >
-                    {showForm ? <><X className="h-5 w-5" /> Cancel</> : <><Plus className="h-5 w-5" /> Schedule Pickup</>}
-                </button>
-            )}
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="bg-emerald-600 p-2 rounded-xl shadow-lg shadow-emerald-200">
+                             <Zap className="h-6 w-6 text-white" />
+                        </div>
+                        <span className="text-xs font-black uppercase tracking-[3px] text-emerald-600">Active Dashboard</span>
+                    </div>
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-800 tracking-tight leading-tight">
+                        Welcome back, <br className="hidden sm:block" />
+                        <span className="text-emerald-600">{user?.name.split(' ')[0]}!</span>
+                    </h1>
+                    <p className="text-slate-500 font-medium mt-4 text-lg max-w-md leading-relaxed">
+                        Ready to make the world cleaner? Check your active pickups or schedule a new one below.
+                    </p>
+                </motion.div>
+                
+                {user?.role === 'citizen' && (
+                    <motion.button 
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setShowForm(!showForm)}
+                        className={cn(
+                            "w-full sm:w-auto px-8 sm:px-10 py-4 sm:py-5 rounded-3xl transition-all flex items-center justify-center gap-3 font-black text-xs uppercase tracking-[2px] shadow-2xl active:scale-95 group overflow-hidden relative",
+                            showForm 
+                                ? "bg-white text-slate-500 border-2 border-slate-100 shadow-slate-100" 
+                                : "bg-emerald-600 text-white shadow-emerald-200 ring-4 ring-emerald-500/10"
+                        )}
+                    >
+                        {showForm ? (
+                            <><X className="h-5 w-5" /> Close Form</>
+                        ) : (
+                            <><Plus className="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" /> New Collection</>
+                        )}
+                    </motion.button>
+                )}
+            </div>
         </div>
+        
+        {/* Background Decorative Element */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[100px] -mr-40 -mt-40" />
+      </div>
 
-        {/* Live Tracking Map Section (Citizen) */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 -mt-10 relative z-20">
+        
+        {/* Live Tracking Alert Card */}
         {user?.role === 'citizen' && myActivePickup && (
             <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="mb-10 bg-white p-8 rounded-[32px] border-2 border-green-100 shadow-2xl shadow-green-100/50"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-12 bg-white p-8 rounded-[32px] border border-emerald-100 shadow-premium overflow-hidden group"
             >
-                <div className="flex justify-between items-end mb-6">
-                    <div>
-                        <h2 className="text-2xl font-black text-gray-900 flex items-center gap-3">
-                             <div className="relative flex h-4 w-4">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500"></span>
+                <div className="flex flex-col md:flex-row gap-10">
+                    <div className="md:w-1/2 flex flex-col justify-between">
+                        <div>
+                            <div className="flex items-center gap-3 mb-6">
+                                <span className="relative flex h-3 w-3">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                                </span>
+                                <span className="text-[10px] font-black uppercase tracking-[3px] text-emerald-600">Live Status</span>
                             </div>
-                            Live Pickup Tracking
-                        </h2>
-                        <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mt-1">Collector is on the way to pick up your <span className="text-green-600">{myActivePickup.wasteType}</span></p>
+                            <h2 className="text-3xl font-bold text-slate-800 leading-tight">Your collector is <br />on the way!</h2>
+                            <p className="text-slate-500 text-sm font-medium mt-4 leading-relaxed">
+                                Keep your <span className="text-emerald-600 font-bold">{myActivePickup.wasteType}</span> waste ready at the collection point. You can see the collector's live location on the map.
+                            </p>
+                        </div>
+                        <div className="pt-8 flex items-center gap-4">
+                             <div className="flex -space-x-3 overflow-hidden">
+                                <div className="w-10 h-10 rounded-full border-2 border-white bg-slate-100 overflow-hidden"><img src="https://i.pravatar.cc/100?u=4" alt="" /></div>
+                                <div className="w-10 h-10 rounded-full border-2 border-white bg-emerald-600 flex items-center justify-center text-[10px] font-black text-white">+2</div>
+                             </div>
+                             <span className="text-xs font-bold text-slate-400">Collector & Crew</span>
+                        </div>
                     </div>
-                </div>
-                <div className="rounded-2xl overflow-hidden border-4 border-gray-50 shadow-inner">
-                    <LiveTrackingMap 
-                        pickupId={myActivePickup._id} 
-                        initialLat={myActivePickup.location?.coordinates[1]} 
-                        initialLng={myActivePickup.location?.coordinates[0]} 
-                    />
+                    <div className="md:w-1/2 rounded-[24px] overflow-hidden border-2 border-slate-50 h-72 shadow-inner bg-slate-50 relative">
+                        <LiveTrackingMap 
+                            pickupId={myActivePickup._id} 
+                            initialLat={myActivePickup.location?.coordinates[1]} 
+                            initialLng={myActivePickup.location?.coordinates[0]} 
+                        />
+                    </div>
                 </div>
             </motion.div>
         )}
 
         {isPendingCollector && (
             <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="bg-yellow-50 border-2 border-yellow-100 p-6 mb-10 rounded-3xl shadow-lg shadow-yellow-100/50"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-amber-50 border-2 border-amber-100 p-8 mb-12 rounded-[32px] shadow-sm flex flex-col md:flex-row items-center gap-6"
             >
-                <div className="flex items-center gap-4">
-                    <div className="p-3 bg-yellow-400 rounded-2xl text-white shadow-lg shadow-yellow-200">
-                        <Clock className="h-6 w-6" />
-                    </div>
-                    <div>
-                        <h4 className="font-black text-yellow-800 uppercase tracking-widest text-sm">Application Pending</h4>
-                        <p className="text-yellow-700 text-sm font-medium">Your application is currently under review. This usually takes 24-48 hours.</p>
-                    </div>
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-amber-500 shadow-sm shadow-amber-100">
+                    <Clock className="h-8 w-8" />
                 </div>
+                <div className="flex-1 text-center md:text-left">
+                    <h4 className="text-xl font-bold text-amber-900 tracking-tight">Account Under Review</h4>
+                    <p className="text-sm font-semibold text-amber-700/70 mt-1 max-w-lg">Our team is verifying your collector documents. You'll receive full access within 24-48 business hours.</p>
+                </div>
+                <button className="px-6 py-3 bg-white text-amber-800 rounded-xl font-bold text-xs uppercase tracking-widest border border-amber-200">View Status</button>
             </motion.div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Left Column: Pickup List */}
-            {!isPendingCollector && (
-                <div className="lg:col-span-2 space-y-8">
+            {!isPendingCollector ? (
+                <div className="lg:col-span-2 space-y-12 pb-12">
                     <AnimatePresence>
                         {showForm && (
                             <motion.div 
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
+                                initial={{ opacity: 0, y: -20, height: 0 }}
+                                animate={{ opacity: 1, y: 0, height: 'auto' }}
+                                exit={{ opacity: 0, y: -20, height: 0 }}
                                 className="overflow-hidden"
                             >
-                                <div className="mb-10 bg-white p-2 rounded-[32px] border-2 border-gray-100 shadow-xl overflow-hidden">
+                                <div className="bg-white rounded-[32px] border border-slate-100 shadow-premium overflow-hidden p-2">
                                     <PickupForm onPickupCreated={handlePickupCreated} />
                                 </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
 
-                    <div className="bg-white rounded-[40px] shadow-sm border border-gray-100 p-8">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">
-                                <div className="w-2 h-8 bg-green-500 rounded-full" />
-                                Your Pickups
-                            </h2>
-                            <span className="bg-gray-50 text-gray-400 font-black text-xs px-3 py-1 rounded-full border border-gray-100">
-                                {pickups.length} TOTAL
+                    <div className="space-y-6">
+                        <div className="flex justify-between items-end px-4">
+                            <div>
+                                <h2 className="text-2xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
+                                    Your Schedule <Activity className="h-5 w-5 text-emerald-600" />
+                                </h2>
+                                <p className="text-slate-400 text-sm font-semibold mt-1">Timeline of recent and upcoming pickups.</p>
+                            </div>
+                            <span className="bg-white px-4 py-2 rounded-xl text-slate-500 font-bold text-[10px] uppercase border border-slate-100 shadow-sm tracking-[2px]">
+                                {pickups.length} Total
                             </span>
                         </div>
-                        <PickupList pickups={pickups} loading={loading} onPickupUpdated={fetchPickups} />
+                        <div className="p-2 md:p-4 bg-white md:bg-transparent rounded-[32px] md:border-none border border-slate-100 shadow-sm md:shadow-none">
+                            <PickupList pickups={pickups} loading={loading} onPickupUpdated={fetchPickups} />
+                        </div>
                     </div>
                 </div>
-            )}
-            
-            {isPendingCollector && (
-                 <div className="lg:col-span-2 bg-white rounded-[40px] shadow-sm border border-gray-100 p-16 flex flex-col items-center justify-center text-center space-y-6">
-                    <motion.div 
-                        animate={{ scale: [1, 1.1, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="p-6 bg-green-50 rounded-full"
-                    >
-                        <AlertTriangle className="h-16 w-16 text-green-600" />
-                    </motion.div>
-                     <div className="space-y-2">
-                        <h2 className="text-3xl font-black text-gray-900 uppercase tracking-tight">Wait for Approval</h2>
-                        <p className="text-gray-400 font-medium max-w-md mx-auto">
-                            We are verifying your vehicle and license details. You'll receive an email once approved.
+            ) : (
+                 <div className="lg:col-span-2 bg-white rounded-[32px] border border-slate-100 p-20 flex flex-col items-center justify-center text-center space-y-6 shadow-sm">
+                    <div className="p-8 bg-emerald-50 rounded-full ring-[20px] ring-emerald-50/50">
+                        <ShieldCheck className="h-16 w-16 text-emerald-600" />
+                    </div>
+                    <div className="space-y-3">
+                        <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Verification in Progress</h2>
+                        <p className="text-slate-500 text-sm max-w-sm font-medium leading-relaxed leading-relaxed">
+                            To ensure high-quality service, we manually review every collector application. Thank you for your patience!
                         </p>
-                     </div>
+                    </div>
+                    <div className="pt-6">
+                        <button onClick={() => navigate('/profile')} className="text-emerald-600 font-bold text-xs uppercase tracking-[2px] hover:underline underline-offset-8 transition-all">Review Application Profile</button>
+                    </div>
                  </div>
             )}
-
-            {/* Right Column: Stats, Info & Tips */}
-            <div className="space-y-8">
+            
+            {/* Right Column: Profile Summary & Tips */}
+            <div className="space-y-10">
                 {user?.role === 'collector' && collectorStats && (
                     <motion.div 
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="bg-blue-600 rounded-[40px] p-8 text-white shadow-xl shadow-blue-200 relative overflow-hidden group"
+                        whileHover={{ y: -5 }}
+                        className="bg-emerald-600 p-10 rounded-[32px] shadow-2xl shadow-emerald-200 relative overflow-hidden group text-white border-none"
                     >
-                        <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform">
-                            <Wallet className="h-32 w-32" />
+                        <div className="absolute -right-8 -bottom-8 opacity-20 group-hover:scale-125 transition-transform duration-1000 rotate-12">
+                            <Wallet className="h-40 w-40" />
                         </div>
-                        <div className="relative z-10">
-                            <div className="flex items-center gap-2 mb-2">
-                                <TrendingUp className="h-4 w-4 text-blue-200" />
-                                <h5 className="font-black uppercase tracking-widest text-[10px] text-blue-100">Your Earnings (5%)</h5>
+                        <div className="relative z-10 flex flex-col justify-between h-full">
+                            <div>
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="p-2 bg-white/20 rounded-lg backdrop-blur-md">
+                                        <TrendingUp className="h-5 w-5 text-white" />
+                                    </div>
+                                    <h5 className="font-black uppercase tracking-[2px] text-xs text-emerald-100">Estimated Commission</h5>
+                                </div>
+                                <div className="text-5xl font-bold tracking-tight mb-2">₹{collectorStats.earnings.toFixed(2)}</div>
+                                <p className="text-sm font-bold text-emerald-200/80 mb-8">{collectorStats.count} Completed Services</p>
                             </div>
-                            <div className="text-4xl font-black">₹{collectorStats.earnings.toFixed(2)}</div>
-                            <p className="text-xs mt-4 font-medium opacity-80">From {collectorStats.count} completed pickups</p>
+                            <button 
+                                onClick={() => navigate('/profile')}
+                                className="w-full py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-2xl font-black text-xs uppercase tracking-[2px] transition-all border border-white/20 shadow-lg"
+                            >
+                                Withdrawal History
+                            </button>
                         </div>
                     </motion.div>
                 )}
 
-                <div className="bg-white rounded-[40px] shadow-sm border border-gray-100 p-8 flex flex-col items-center text-center">
-                    <div className="w-20 h-20 bg-green-50 rounded-3xl flex items-center justify-center mb-4">
-                        <User className="h-10 w-10 text-green-600" />
+                <div className="bg-white rounded-[32px] shadow-premium border border-slate-100 p-10 flex flex-col items-center text-center relative group">
+                    <div className="absolute top-6 right-6 p-2 rounded-xl bg-slate-50 text-slate-300 group-hover:text-emerald-500 transition-colors">
+                        <Info className="h-4 w-4" />
                     </div>
-                    <h3 className="text-xl font-black text-gray-900 tracking-tight">Your Profile</h3>
-                    <p className="text-gray-400 text-sm mt-2 mb-6">Manage your vehicle, address, and contact details on your dedicated profile page.</p>
+                    <div className="relative mb-8">
+                        <div className="w-28 h-28 rounded-full border-[6px] border-slate-50 overflow-hidden bg-white shadow-xl ring-2 ring-emerald-500/10">
+                            <img 
+                                src={user?.profilePicture} 
+                                alt={user?.name}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                        </div>
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-800 tracking-tight">{user?.name}</h3>
+                    <div className="flex items-center gap-2 mt-4">
+                         <span className="text-emerald-600 font-black uppercase tracking-[3px] text-[10px] bg-emerald-50/50 px-4 py-1.5 rounded-full border border-emerald-100 shadow-sm">
+                                {user?.role}
+                        </span>
+                    </div>
+                    <p className="text-slate-400 text-xs font-bold mt-8 pb-8 leading-relaxed max-w-[200px]">Empower your recycling journey with personalized stats.</p>
                     <button 
                         onClick={() => navigate('/profile')}
-                        className="w-full py-3 bg-gray-50 text-gray-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-50 hover:text-green-600 transition-all border border-transparent hover:border-green-100"
+                        className="w-full py-5 bg-slate-900 text-white rounded-[24px] font-black text-xs uppercase tracking-[3px] hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 flex items-center justify-center gap-3 active:scale-95 group"
                     >
-                        View Full Profile
+                        View Profile <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                     </button>
                 </div>
 
-                <div className="bg-gray-900 rounded-[40px] p-8 text-white relative overflow-hidden shadow-2xl shadow-gray-900/20">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-green-500/10 rounded-full -mr-32 -mt-32 blur-3xl" />
-                    <h4 className="text-lg font-black uppercase tracking-widest mb-4 flex items-center gap-2">
-                         <div className="w-1.5 h-6 bg-green-500 rounded-full" />
-                        Quick Tips
-                    </h4>
-                    <ul className="space-y-4">
+                <div className="bg-white rounded-[32px] p-10 border border-slate-100 shadow-sm overflow-hidden flex flex-col gap-8">
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-1 object-cover bg-emerald-500 rounded-full" />
+                        <h4 className="text-[11px] font-black uppercase tracking-[3px] text-slate-800">Pro Guidelines</h4>
+                    </div>
+                    <div className="space-y-6">
                         {[
-                            "Segregate dry and wet waste before collector arrives.",
-                            "Keep your e-waste separate for special handling.",
-                            "Verify the collector's identity via the dashboard."
+                            { text: "Segregate dry & wet waste.", icon: <Recycle className="h-3.5 w-3.5" /> },
+                            { text: "Bundle metal scraps safely.", icon: <ShieldCheck className="h-3.5 w-3.5" /> },
+                            { text: "Verify collector's live ID.", icon: <User className="h-3.5 w-3.5" /> }
                         ].map((tip, i) => (
-                            <li key={i} className="flex gap-3 text-sm font-medium text-gray-400 leading-relaxed">
-                                <div className="h-5 w-5 bg-gray-800 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] text-green-500 font-black">
-                                    {i + 1}
+                            <div key={i} className="flex gap-5 items-start">
+                                <div className="h-7 w-7 rounded-xl bg-slate-50 border border-slate-100 flex-shrink-0 flex items-center justify-center text-slate-400">
+                                    {tip.icon}
                                 </div>
-                                {tip}
-                            </li>
+                                <span className="text-xs font-bold text-slate-500 leading-relaxed pt-1">{tip.text}</span>
+                            </div>
                         ))}
-                    </ul>
+                    </div>
                 </div>
             </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };
+
 export default Dashboard;

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Package, Clock, CheckCircle, MapPin, Loader2, Eye, Plus } from 'lucide-react';
+import { Package, Clock, CheckCircle, MapPin, Loader2, Eye, Plus, ChevronRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import PickupDetailModal from './PickupDetailModal';
 import { Skeleton } from './Skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '../utils/cn';
 
 const PickupList = ({ pickups, loading, onPickupUpdated }) => {
   const { user } = useAuth();
@@ -23,143 +24,135 @@ const PickupList = ({ pickups, loading, onPickupUpdated }) => {
         }
     } catch (error) {
         console.error("Failed to accept pickup", error);
-        toast.error(error.response?.data?.message || "Failed to accept");
     } finally {
         setProcessingId(null);
     }
   };
 
-  const getStatusColor = (status) => {
-      switch (status) {
-          case 'CREATED': return 'bg-blue-50 text-blue-700 border-blue-100';
-          case 'MATCHING': return 'bg-yellow-50 text-yellow-700 border-yellow-100';
-          case 'ASSIGNED': return 'bg-purple-50 text-purple-700 border-purple-100';
-          case 'ACCEPTED': return 'bg-indigo-50 text-indigo-700 border-indigo-100';
-          case 'ON_THE_WAY': return 'bg-orange-50 text-orange-700 border-orange-100';
-          case 'COMPLETED': return 'bg-green-50 text-green-700 border-green-100';
-          case 'CANCELLED': return 'bg-red-50 text-red-700 border-red-100';
-          default: return 'bg-gray-50 text-gray-700 border-gray-100';
-      }
+  const statusStyles = {
+    CREATED: "bg-blue-50 text-blue-600 border-blue-100",
+    MATCHING: "bg-amber-50 text-amber-600 border-amber-100",
+    ASSIGNED: "bg-slate-100 text-slate-600 border-slate-200",
+    ACCEPTED: "bg-emerald-50 text-emerald-600 border-emerald-100",
+    ON_THE_WAY: "bg-indigo-50 text-indigo-600 border-indigo-100 animate-pulse",
+    COMPLETED: "bg-emerald-100 text-emerald-800 border-emerald-200",
+    SETTLED: "bg-slate-800 text-white border-slate-900",
+    CANCELLED: "bg-rose-50 text-rose-600 border-rose-100",
   };
 
   return (
-    <>
+    <div className="space-y-4">
         {loading ? (
             <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
-                    <div key={i} className="bg-white p-4 rounded-lg border border-gray-100 flex flex-col sm:flex-row justify-between gap-4">
-                        <div className="space-y-2 flex-1">
-                            <Skeleton className="h-4 w-24" />
-                            <Skeleton className="h-6 w-48" />
-                            <Skeleton className="h-4 w-32" />
-                            <Skeleton className="h-3 w-64" />
+                    <div key={i} className="bg-white p-6 rounded-2xl border border-slate-100 flex flex-col sm:flex-row justify-between gap-6">
+                        <div className="space-y-3 flex-1">
+                            <Skeleton className="h-4 w-24 rounded-full" />
+                            <Skeleton className="h-7 w-48 rounded-lg" />
+                            <Skeleton className="h-4 w-32 rounded-md" />
                         </div>
                         <div className="flex items-center gap-4">
-                            <Skeleton className="h-16 w-16 rounded-md" />
-                            <Skeleton className="h-10 w-24 rounded-lg" />
+                            <Skeleton className="h-16 w-16 rounded-xl" />
+                            <Skeleton className="h-10 w-24 rounded-xl" />
                         </div>
                     </div>
                 ))}
             </div>
         ) : !pickups || pickups.length === 0 ? (
             <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-16 bg-white rounded-xl border-2 border-dashed border-gray-100 flex flex-col items-center justify-center space-y-4"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-slate-100 flex flex-col items-center justify-center space-y-4 shadow-sm"
             >
-                <div className="p-4 bg-green-50 rounded-full">
-                  <Package className="h-12 w-12 text-green-500" />
+                <div className="p-5 bg-slate-50 rounded-full">
+                  <Package className="h-10 w-10 text-slate-300" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">No Pickups Found</h3>
-                  <p className="text-gray-500 max-w-sm mx-auto">There are no pickups available at the moment. Check back later or schedule one!</p>
+                  <h3 className="text-lg font-bold text-slate-800 tracking-tight">Everything's Clean!</h3>
+                  <p className="text-slate-500 text-sm font-medium max-w-xs mx-auto mt-1">No active pickups found. Start recycling to see your tasks here.</p>
                 </div>
-                {user?.role === 'citizen' && (
-                  <button className="text-green-600 font-semibold flex items-center gap-1 hover:underline text-sm">
-                      <Plus className="h-4 w-4" /> Schedule Now
-                  </button>
-                )}
             </motion.div>
         ) : (
-            <motion.div 
-                layout
-                className="space-y-4"
-            >
-            <AnimatePresence mode="popLayout">
-                {pickups.map((pickup) => (
-                    <motion.div 
-                        layout
-                        key={pickup._id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:shadow-md transition-all duration-300 group"
-                    >
-                    <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] uppercase font-black border ${getStatusColor(pickup.status)}`}>
-                                {pickup.status}
-                            </span>
-                            <span className="text-xs text-gray-400 flex items-center gap-1 font-medium">
-                                <Clock className="h-3 w-3" /> {new Date(pickup.createdAt).toLocaleDateString()}
-                            </span>
-                        </div>
-                        <h3 className="font-bold text-gray-900 capitalize text-xl group-hover:text-green-600 transition-colors">{pickup.wasteType}</h3>
-                        <div className="flex items-center gap-3 mt-1">
-                            <p className="text-sm font-semibold text-gray-600 flex items-center gap-1">
-                                <Package className="h-4 w-4 text-green-500" /> {pickup.weight} kg
-                            </p>
-                            {pickup.location?.formattedAddress && (
-                                <p className="text-sm text-gray-400 flex items-center gap-1 truncate max-w-[200px]" title={pickup.location.formattedAddress}>
-                                    <MapPin className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" /> {pickup.location.formattedAddress}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
-                        {pickup.images && pickup.images.length > 0 && (
-                            <div 
-                                className="flex-shrink-0 relative cursor-pointer overflow-hidden rounded-lg border-2 border-transparent group-hover:border-green-500 transition-all shadow-sm"
-                                onClick={() => setSelectedPickup(pickup)}
-                            >
-                                <img 
-                                    src={pickup.images[0]} 
-                                    alt="Pickup" 
-                                    className="h-14 w-14 sm:h-16 sm:w-16 object-cover transform group-hover:scale-110 transition-transform duration-500"
-                                />
-                                {pickup.video && (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                                        <div className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse border border-white shadow-sm" />
+            <div className="grid grid-cols-1 gap-4">
+                <AnimatePresence mode="popLayout">
+                    {pickups.map((pickup, idx) => (
+                        <motion.div 
+                            key={pickup._id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.05 }}
+                            className="bg-white p-5 md:p-6 rounded-2xl border border-slate-100 hover:border-emerald-100 hover:shadow-premium transition-all duration-300 group cursor-pointer relative overflow-hidden"
+                            onClick={() => setSelectedPickup(pickup)}
+                        >
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <span className={cn(
+                                            "px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-wider border transition-colors",
+                                            statusStyles[pickup.status] || "bg-slate-50 text-slate-500 border-slate-100"
+                                        )}>
+                                            {pickup.status}
+                                        </span>
+                                        <span className="text-[11px] text-slate-400 font-semibold flex items-center gap-1.5 uppercase tracking-wide">
+                                            <Clock className="h-3 w-3" /> {new Date(pickup.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                        </span>
                                     </div>
-                                )}
+                                    <h3 className="text-xl font-bold text-slate-800 capitalize tracking-tight group-hover:text-emerald-600 transition-colors mb-2">
+                                        {pickup.wasteType}
+                                    </h3>
+                                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                                        <div className="flex items-center gap-2 text-slate-500 font-semibold text-sm">
+                                            <Package className="h-4 w-4 text-emerald-500/60" /> 
+                                            <span className="text-slate-700">{pickup.weight}kg</span>
+                                        </div>
+                                        {pickup.location?.formattedAddress && (
+                                            <div className="flex items-center gap-2 text-slate-400 text-sm font-medium truncate max-w-[240px]">
+                                                <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-slate-300" />
+                                                <span className="truncate">{pickup.location.formattedAddress}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                <div className="flex items-center gap-5 w-full sm:w-auto self-end sm:self-center border-t sm:border-t-0 pt-4 sm:pt-0 border-slate-50">
+                                    {pickup.images && pickup.images.length > 0 && (
+                                        <div className="relative h-14 w-14 rounded-xl overflow-hidden border-2 border-slate-50 shadow-sm group-hover:shadow-md transition-shadow">
+                                            <img 
+                                                src={pickup.images[0]} 
+                                                alt="Waste" 
+                                                className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                            />
+                                            {pickup.video && (
+                                                <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                                                    <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                    
+                                    <div className="flex items-center gap-3 ml-auto">
+                                        {user?.role === 'collector' && (pickup.status === 'CREATED' || pickup.status === 'MATCHING') && (
+                                            <button 
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleAccept(pickup._id);
+                                                }}
+                                                disabled={processingId === pickup._id}
+                                                className="bg-emerald-600 text-white px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-emerald-700 transition-all shadow-sm hover:shadow-emerald-200 disabled:opacity-50 active:scale-95 flex items-center gap-2"
+                                            >
+                                                {processingId === pickup._id ? <Loader2 className="animate-spin h-4 w-4" /> : 'Accept Request'}
+                                            </button>
+                                        )}
+                                        <div className="p-2 rounded-xl bg-slate-50 text-slate-300 group-hover:bg-emerald-50 group-hover:text-emerald-500 transition-colors">
+                                            <ChevronRight className="h-5 w-5" />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        )}
-                        
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => setSelectedPickup(pickup)}
-                                className="bg-gray-50 text-gray-600 hover:text-green-600 p-2.5 rounded-xl hover:bg-green-50 transition-all border border-gray-100 hover:border-green-100"
-                                title="View Details"
-                            >
-                                <Eye className="h-5 w-5" />
-                            </button>
-
-                            {user?.role === 'collector' && (pickup.status === 'CREATED' || pickup.status === 'MATCHING') && (
-                                <button 
-                                    onClick={() => handleAccept(pickup._id)}
-                                    disabled={processingId === pickup._id}
-                                    className="bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-green-700 transition-all shadow-lg shadow-green-200 hover:shadow-green-300 disabled:opacity-50 ring-offset-2 focus:ring-2 focus:ring-green-500 active:scale-95"
-                                >
-                                    {processingId === pickup._id ? <Loader2 className="animate-spin h-5 w-5" /> : 'Accept'}
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                    </motion.div>
-                ))}
-            </AnimatePresence>
-            </motion.div>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+            </div>
         )}
 
         <AnimatePresence>
@@ -173,7 +166,7 @@ const PickupList = ({ pickups, loading, onPickupUpdated }) => {
                 />
             )}
         </AnimatePresence>
-    </>
+    </div>
   );
 };
 

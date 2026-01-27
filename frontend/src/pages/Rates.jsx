@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
-import { IndianRupee, Info, Search, Filter } from 'lucide-react';
+import { IndianRupee, Info, Search, Filter, ArrowUpRight } from 'lucide-react';
 import { Skeleton } from '../components/Skeleton';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '../utils/cn';
 
 const Rates = () => {
     const [rates, setRates] = useState([]);
@@ -33,104 +34,132 @@ const Rates = () => {
     });
 
     return (
-        <div className="min-h-screen bg-gray-50/50 p-4 sm:p-8">
-            <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="max-w-6xl mx-auto"
-            >
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
-                    <div className="space-y-1">
-                        <h1 className="text-4xl font-black text-gray-900 flex items-center gap-3 tracking-tight">
-                            <IndianRupee className="h-10 w-10 text-green-600" /> 
-                            Waste Rates
-                        </h1>
-                        <p className="text-gray-400 font-bold uppercase tracking-widest text-xs ml-1">Current daily market prices for recyclable items</p>
+        <div className="min-h-screen bg-[#F7F8FA] selection:bg-emerald-100 selection:text-emerald-900">
+            {/* Header / Hero Section */}
+            <div className="mesh-gradient border-b border-slate-100 px-4 pt-16 pb-24 md:pt-20 md:pb-32">
+                <motion.div 
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="max-w-6xl mx-auto text-center md:text-left"
+                >
+                    <div className="inline-flex items-center gap-3 px-4 py-2 bg-white rounded-2xl shadow-sm border border-slate-100 mb-6 mx-auto md:mx-0">
+                        <IndianRupee className="h-4 w-4 text-emerald-600" />
+                        <span className="text-[10px] font-black uppercase tracking-[2px] text-slate-500">Live Market Prices</span>
                     </div>
-                </div>
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-800 tracking-tight leading-tight">
+                        Transparent <span className="text-emerald-600">Waste Economics</span>
+                    </h1>
+                    <p className="text-slate-500 font-medium mt-4 text-lg max-w-2xl mx-auto md:mx-0 leading-relaxed">
+                        Stay updated with the daily market rates for all recyclable categories. 
+                        We ensure you get the best value for your sustainability efforts.
+                    </p>
+                </motion.div>
+            </div>
 
-                {/* Filters */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                    <div className="relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <div className="max-w-6xl mx-auto px-4 -mt-16 md:-mt-24 pb-20">
+                {/* Search & Filters Card */}
+                <div className="bg-white p-6 md:p-8 rounded-[32px] shadow-premium border border-slate-100 mb-10 flex flex-col md:flex-row gap-6 items-center">
+                    <div className="relative flex-1 w-full">
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300 group-focus-within:text-emerald-500 transition-colors" />
                         <input 
                             type="text" 
-                            placeholder="Search waste type..." 
+                            placeholder="Explore items (e.g. Copper, Pet Bottles...)" 
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-white border-2 border-gray-100 rounded-2xl pl-12 pr-4 py-3 font-semibold focus:border-green-500 transition-all outline-none"
+                            className="w-full bg-slate-50 border-2 border-transparent focus:border-emerald-500 rounded-3xl pl-14 pr-6 py-4 font-bold text-slate-700 transition-all outline-none placeholder:text-slate-300"
                         />
                     </div>
-                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                    <div className="h-10 w-[2px] bg-slate-50 hidden md:block" />
+                    <div className="flex gap-3 overflow-x-auto pb-2 md:pb-0 scrollbar-hide w-full md:w-auto">
                         {categories.map(cat => (
                             <button
                                 key={cat}
                                 onClick={() => setSelectedCategory(cat)}
-                                className={`px-5 py-2 rounded-xl text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all ${selectedCategory === cat ? 'bg-green-600 text-white shadow-lg shadow-green-200' : 'bg-white text-gray-400 border border-gray-100 hover:bg-gray-50'}`}
+                                className={cn(
+                                    "px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-[2px] whitespace-nowrap transition-all flex items-center gap-2",
+                                    selectedCategory === cat 
+                                        ? "bg-slate-900 text-white shadow-xl shadow-slate-200" 
+                                        : "bg-white text-slate-400 border-2 border-slate-50 hover:border-slate-100 hover:text-slate-600"
+                                )}
                             >
                                 {cat}
+                                {selectedCategory === cat && <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
                             </button>
                         ))}
                     </div>
                 </div>
 
                 {loading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                         {[1, 2, 3, 4, 5, 6].map(i => (
-                            <div key={i} className="bg-white p-6 rounded-3xl border border-gray-100 space-y-4">
+                            <div key={i} className="bg-white p-8 rounded-[40px] border border-slate-100 space-y-6 shadow-sm">
                                 <div className="flex justify-between items-start">
-                                    <Skeleton className="h-6 w-32" />
+                                    <Skeleton className="h-6 w-32 rounded-lg" />
                                     <Skeleton className="h-6 w-16 rounded-full" />
                                 </div>
-                                <Skeleton className="h-10 w-full" />
-                                <Skeleton className="h-4 w-48" />
+                                <Skeleton className="h-12 w-full rounded-2xl" />
+                                <Skeleton className="h-4 w-48 rounded-md" />
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredRates.map((rate) => (
-                            <motion.div 
-                                layout
-                                key={rate._id}
-                                whileHover={{ y: -5 }}
-                                className="bg-white p-6 rounded-[32px] border-2 border-transparent hover:border-green-100 shadow-xl shadow-gray-200/50 transition-all group"
-                            >
-                                <div className="flex justify-between items-start mb-4">
-                                    <span className="bg-gray-50 text-gray-400 font-black text-[10px] uppercase tracking-widest px-3 py-1 rounded-full group-hover:bg-green-50 group-hover:text-green-600 transition-colors">
-                                        {rate.category}
-                                    </span>
-                                    {rate.description && (
-                                        <div className="relative group/info">
-                                            <Info className="h-4 w-4 text-gray-300 hover:text-green-500 transition-colors cursor-help" />
-                                            <div className="absolute right-0 bottom-full mb-2 w-48 bg-gray-900 text-white text-[10px] p-3 rounded-xl opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all z-20 font-bold uppercase tracking-widest leading-relaxed">
-                                                {rate.description}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <AnimatePresence mode="popLayout">
+                            {filteredRates.map((rate, idx) => (
+                                <motion.div 
+                                    layout
+                                    key={rate._id}
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: idx * 0.05 }}
+                                    whileHover={{ y: -8 }}
+                                    className="bg-white p-6 sm:p-8 rounded-3xl sm:rounded-[40px] border border-slate-100 shadow-sm hover:shadow-premium transition-all group relative overflow-hidden"
+                                >
+                                    <div className="flex justify-between items-center mb-6">
+                                        <span className="bg-slate-50 text-slate-400 font-black text-[10px] uppercase tracking-[2px] px-4 py-1.5 rounded-full ring-1 ring-inset ring-slate-100 group-hover:bg-emerald-50 group-hover:text-emerald-700 group-hover:ring-emerald-100 transition-all">
+                                            {rate.category}
+                                        </span>
+                                        {rate.description && (
+                                            <div className="p-2 rounded-xl bg-slate-50 text-slate-300 group-hover:text-emerald-500 transition-colors">
+                                                <Info className="h-4 w-4" />
                                             </div>
-                                        </div>
-                                    )}
-                                </div>
-                                <h3 className="text-xl font-black text-gray-900 capitalize mb-1 transform group-hover:translate-x-1 transition-transform">{rate.name}</h3>
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-3xl font-black text-green-600 tracking-tight">₹{rate.price}</span>
-                                    <span className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">/{rate.unit}</span>
-                                </div>
-                            </motion.div>
-                        ))}
+                                        )}
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-slate-800 capitalize mb-2 group-hover:text-emerald-600 transition-colors">{rate.name}</h3>
+                                    <div className="flex items-end gap-1.5 mb-8">
+                                        <span className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight group-hover:text-emerald-700 transition-colors">₹{rate.price}</span>
+                                        <span className="text-slate-400 font-bold uppercase tracking-widest text-xs pb-1.5">/{rate.unit}</span>
+                                    </div>
+                                    
+                                    <div className="flex items-center gap-2 text-emerald-600 font-bold text-[10px] uppercase tracking-[2px] opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+                                        Market Standard <ArrowUpRight className="h-3 w-3" />
+                                    </div>
+                                    
+                                    {/* Background Accent */}
+                                    <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-emerald-500/10 transition-colors" />
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
                     </div>
                 )}
                 
                 {!loading && filteredRates.length === 0 && (
-                    <div className="text-center py-20 bg-white rounded-[40px] border-2 border-dashed border-gray-100 flex flex-col items-center justify-center space-y-4">
-                        <div className="p-4 bg-gray-50 rounded-full">
-                            <Search className="h-12 w-12 text-gray-300" />
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="text-center py-32 bg-white rounded-[40px] border-2 border-dashed border-slate-100 flex flex-col items-center justify-center space-y-6 shadow-sm"
+                    >
+                        <div className="p-6 bg-slate-50 rounded-full">
+                            <Search className="h-14 w-14 text-slate-200" />
                         </div>
-                        <div>
-                            <h3 className="text-xl font-bold text-gray-900">No rates found</h3>
-                            <p className="text-gray-400 max-w-sm mx-auto">Try searching for a different waste type or adjusting your category filter.</p>
+                        <div className="space-y-2">
+                            <h3 className="text-2xl font-bold text-slate-800 tracking-tight">Resource Not Found</h3>
+                            <p className="text-slate-400 font-semibold max-w-sm mx-auto">We couldn't find any rates matching your search. Try broadening your criteria.</p>
                         </div>
-                    </div>
+                        <button onClick={() => {setSearchTerm(''); setSelectedCategory('All');}} className="text-emerald-600 font-black text-xs uppercase tracking-[2px] hover:underline underline-offset-8">Reset Filters</button>
+                    </motion.div>
                 )}
-            </motion.div>
+            </div>
         </div>
     );
 };
