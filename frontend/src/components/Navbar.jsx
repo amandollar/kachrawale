@@ -37,9 +37,9 @@ const Navbar = () => {
                   Rates
                 </Link>
                 <div className="flex items-center space-x-4 ml-4">
-                    <span className="text-sm text-gray-500 flex items-center gap-1">
+                    <Link to="/profile" className="text-sm text-gray-500 hover:text-green-600 flex items-center gap-1 transition-colors">
                         <User className="h-4 w-4" /> {user.name}
-                    </span>
+                    </Link>
                     <button
                     onClick={handleLogout}
                     className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-full text-sm font-medium hover:bg-red-100 transition-colors"
@@ -85,6 +85,9 @@ const Navbar = () => {
                 </Link>
                 <Link to="/rates" onClick={toggleMenu} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-green-600 hover:bg-green-50">
                   Rates
+                </Link>
+                <Link to="/profile" onClick={toggleMenu} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-green-600 hover:bg-green-50">
+                  Profile
                 </Link>
                 <button
                   onClick={() => {
