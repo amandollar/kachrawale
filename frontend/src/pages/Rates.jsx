@@ -4,6 +4,9 @@ import { IndianRupee, Info, Search, Filter, ArrowUpRight } from 'lucide-react';
 import { Skeleton } from '../components/Skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../utils/cn';
+import RatesHeroMotivation from '../assets/rates_hero_motivation.png';
+import EcoImpactMotivation from '../assets/eco_impact_motivation.png';
+import CommunityGreenHands from '../assets/community_green_hands.png';
 
 const Rates = () => {
     const [rates, setRates] = useState([]);
@@ -59,6 +62,51 @@ const Rates = () => {
             </div>
 
             <div className="max-w-7xl mx-auto px-6 sm:px-8 -mt-12 relative z-20">
+                {/* Motivational Environment Section - Moved to Top */}
+                <div className="mb-20">
+                    <div className="flex items-center gap-2 mb-8">
+                        <div className="h-[1px] w-8 bg-emerald-300"></div>
+                        <span className="text-[10px] font-bold uppercase tracking-[2px] text-emerald-600">Our Shared Future</span>
+                    </div>
+                    
+                    <h2 className="text-3xl md:text-3xl font-bold text-emerald-950 tracking-tight leading-tight mb-8">
+                         More Than Just <br />
+                         <span className="text-emerald-500 font-medium italic">Scrap & Metal.</span>
+                    </h2>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 h-[400px]">
+                        {/* Card 1: Hero/Wealth */}
+                        <div className="relative group rounded-3xl overflow-hidden shadow-2xl shadow-emerald-900/10 border border-emerald-100">
+                            <img src={RatesHeroMotivation} alt="Wealth from Waste" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-emerald-900/20 to-transparent" />
+                            <div className="absolute bottom-0 left-0 p-8">
+                                <h3 className="text-white text-lg font-bold tracking-tight mb-2">Wealth from Waste</h3>
+                                <p className="text-emerald-100/80 text-[10px] font-medium leading-relaxed">Transforming discarded materials into valuable resources.</p>
+                            </div>
+                        </div>
+
+                        {/* Card 2: Community */}
+                        <div className="relative group rounded-3xl overflow-hidden shadow-2xl shadow-emerald-900/10 border border-emerald-100 md:mt-8">
+                            <img src={CommunityGreenHands} alt="Community" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-emerald-900/20 to-transparent" />
+                            <div className="absolute bottom-0 left-0 p-8">
+                                <h3 className="text-white text-lg font-bold tracking-tight mb-2">Community Power</h3>
+                                <p className="text-emerald-100/80 text-[10px] font-medium leading-relaxed">Thousands of citizens united in a single green mission.</p>
+                            </div>
+                        </div>
+
+                        {/* Card 3: Future Tech */}
+                        <div className="relative group rounded-3xl overflow-hidden shadow-2xl shadow-emerald-900/10 border border-emerald-100">
+                            <img src={EcoImpactMotivation} alt="Future" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-emerald-900/20 to-transparent" />
+                            <div className="absolute bottom-0 left-0 p-8">
+                                <h3 className="text-white text-lg font-bold tracking-tight mb-2">Future Powered</h3>
+                                <p className="text-emerald-100/80 text-[10px] font-medium leading-relaxed">Innovating with sustainable energy cycles.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Search & Intelligence Controls */}
                 <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-10 flex flex-col lg:flex-row gap-4 items-center">
                     <div className="relative flex-1 w-full group">
@@ -172,6 +220,8 @@ const Rates = () => {
                     </motion.div>
                 )}
             </div>
+
+
         </div>
     );
 };
