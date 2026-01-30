@@ -12,8 +12,8 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'clean_green_pickups',
-    allowed_formats: ['jpg', 'png', 'jpeg', 'mp4', 'mov'],
-    resource_type: 'auto', // Auto-detect image vs video
+    allowed_formats: ['jpg', 'png', 'jpeg', 'gif', 'webp', 'heic', 'tiff', 'bmp', 'svg', 'ico', 'avif', 'mp4', 'mov', 'avi', 'mkv'],
+    resource_type: 'auto', 
   },
 });
 
