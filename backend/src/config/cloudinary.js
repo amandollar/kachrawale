@@ -11,7 +11,7 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'kachrawale_pickups',
+    folder: 'clean_green_pickups',
     allowed_formats: ['jpg', 'png', 'jpeg', 'mp4', 'mov'],
     resource_type: 'auto', // Auto-detect image vs video
   },

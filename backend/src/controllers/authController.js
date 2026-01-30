@@ -26,6 +26,7 @@ exports.register = asyncHandler(async (req, res) => {
     password,
     role,
     phone,
+    upiId: req.body.upiId, // Add UPI ID
     address,
     isVerified,
     profilePicture, 
@@ -35,13 +36,45 @@ exports.register = asyncHandler(async (req, res) => {
   // Send Welcome Email
   try {
       const message = role === 'collector' 
-        ? `Hi ${user.name},\n\nThank you for applying to be a Collector at Kachrawale.\n\nYour application including vehicle details is currently UNDER REVIEW.\nYou will receive another email once an Admin verifies your documents and approves your account.\n\nCheers,\nTeam Kachrawale`
-        : `Hi ${user.name},\n\nThank you for joining Kachrawale. Together we claim our clean city!\n\nRole: ${user.role}\n\nCheers,\nTeam Kachrawale`;
+        ? `Hi ${user.name},\n\nThank you for applying to be a Collector at Clean & Green.\n\nYour application including vehicle details is currently UNDER REVIEW.\nYou will receive another email once an Admin verifies your documents and approves your account.\n\nCheers,\nTeam Clean & Green`
+        : `Hi ${user.name},\n\nThank you for joining Clean & Green. Together we claim our clean city!\n\nRole: ${user.role}\n\nCheers,\nTeam Clean & Green`;
+
+      const emailHtml = `
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden;">
+            <div style="background-color: #059669; padding: 20px; text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 24px;">Clean & Green</h1>
+                <p style="color: #ecfdf5; margin: 5px 0 0; font-size: 14px;">Welcome Aboard</p>
+            </div>
+            
+            <div style="padding: 30px; background-color: #ffffff;">
+                <h2 style="color: #064e3b; margin-top: 0;">Hi ${user.name.split(' ')[0]}! 👋</h2>
+                <p style="color: #4b5563; line-height: 1.6;">
+                    ${role === 'collector' 
+                        ? 'Thank you for applying to join our network. Your application is currently <strong>UNDER REVIEW</strong>.' 
+                        : 'Thank you for joining the Clean & Green revolution! You can now request pickups, track your waste, and earn rewards.'}
+                </p>
+
+                ${role === 'collector' ? `
+                <div style="background-color: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                    <p style="margin: 0; color: #9a3412;">Please wait for an admin to verify your submitted documents. We will notify you once approved.</p>
+                </div>
+                ` : ''}
+
+                <div style="margin-top: 30px; text-align: center;">
+                    <a href="${process.env.CLIENT_URL || 'http://localhost:5173'}/login" style="background-color: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Login to Dashboard</a>
+                </div>
+            </div>
+             <div style="background-color: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #9ca3af; border-top: 1px solid #e5e7eb;">
+                &copy; ${new Date().getFullYear()} Clean & Green. All rights reserved.
+            </div>
+        </div>
+      `;
 
       await sendEmail({
           email: user.email,
-          subject: role === 'collector' ? 'Kachrawale - Application Received' : 'Welcome to Kachrawale!',
-          message
+          subject: role === 'collector' ? 'Application Received - Clean & Green' : 'Welcome to Clean & Green!',
+          message: message, // Plain text fallback
+          html: emailHtml
       });
   } catch (err) {
       console.error('Email failed:', err.message);
@@ -87,6 +120,7 @@ exports.updateDetails = asyncHandler(async (req, res) => {
   const fieldsToUpdate = {
     name: req.body.name,
     phone: req.body.phone,
+    upiId: req.body.upiId,
     address: req.body.address // Optional update if sent
   };
 

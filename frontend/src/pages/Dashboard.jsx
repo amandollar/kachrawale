@@ -17,6 +17,9 @@ import MessageList from '../components/MessageList';
 import ChatWindow from '../components/ChatWindow';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../utils/cn';
+import DashboardHero from '../assets/dashboard_hero.png';
+import VerificationImage from '../assets/verification_pending.png';
+import RecyclingGuideImage from '../assets/recycling_guide.png';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -95,26 +98,56 @@ const Dashboard = () => {
 
   const myActivePickup = pickups.find(p => p.status === 'ON_THE_WAY');
 
+  const [stats, setStats] = useState(null);
+
+  const fetchStats = async () => {
+      try {
+          const { data } = await api.get('/collector/my-stats');
+          if (data.success) {
+              setStats(data.data);
+          }
+      } catch (error) {
+          console.error("Failed to fetch collector stats", error);
+      }
+  };
+
+  useEffect(() => {
+    if (user && !isPendingCollector) {
+        fetchPickups();
+        if (user.role === 'collector') {
+            fetchStats();
+        }
+    } else {
+        setLoading(false);
+    }
+  }, [user, isPendingCollector]);
+
+  // Use the fetched stats instead of local calculation
   const collectorStats = useMemo(() => {
-    if (user?.role !== 'collector') return null;
-    const completed = pickups.filter(p => p.status === 'COMPLETED' || p.status === 'SETTLED');
-    const totalTransactions = completed.reduce((acc, p) => acc + (p.finalAmount || 0), 0);
+    if (!stats) return null;
     return {
-        earnings: totalTransactions * 0.05,
-        count: completed.length
+        earnings: stats.totalEarnings || 0,
+        count: stats.totalTrips || 0,
+        cashSpent: stats.cashSpent || 0
     };
-  }, [pickups, user?.role]);
+  }, [stats]);
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA] text-slate-900 selection:bg-emerald-100 selection:text-emerald-900 pb-20">
+    <div className="min-h-screen bg-[#F7F8FA] text-emerald-950 selection:bg-emerald-100 selection:text-emerald-900 pb-20">
       {/* GPS TRACKER FOR COLLECTOR */}
       {user?.role === 'collector' && myActivePickup && (
           <GPSTracker pickupId={myActivePickup._id} />
       )}
 
       {/* Hero Section Container */}
-      <div className="bg-white border-b border-slate-200 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 py-12 md:py-16 relative z-10">
+      <div className="bg-white border-b border-emerald-100 relative overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0 w-full h-full">
+            <img src={DashboardHero} alt="Background" className="w-full h-full object-cover opacity-100" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/40 to-transparent" />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 py-20 md:py-28 relative z-10">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-10">
                 <motion.div 
                     initial={{ opacity: 0, x: -20 }}
@@ -124,11 +157,11 @@ const Dashboard = () => {
                         <Zap className="h-4 w-4 text-emerald-600" />
                         <span className="text-[10px] font-bold uppercase tracking-[2px] text-slate-400">Dashboard Overview</span>
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
+                    <h1 className="text-3xl md:text-4xl font-bold text-emerald-950 tracking-tight leading-tight">
                         Welcome, <span className="text-slate-500 font-medium">{user?.name.split(' ')[0]}</span>
                     </h1>
                     <p className="text-slate-500 text-sm font-medium mt-3 max-w-sm leading-relaxed">
-                        Manage your recycling operations and track active pickups.
+                        Manage your waste pickups and track your earnings.
                     </p>
                 </motion.div>
                 
@@ -141,22 +174,19 @@ const Dashboard = () => {
                             "w-full sm:w-auto px-6 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2.5 font-bold text-[11px] uppercase tracking-wider active:scale-95 group",
                             showForm 
                                 ? "bg-slate-100 text-slate-600 hover:bg-slate-200" 
-                                : "bg-slate-900 text-white shadow-xl shadow-slate-200 hover:bg-slate-800"
+                                : "bg-emerald-950 text-white shadow-xl shadow-emerald-200 hover:bg-emerald-900"
                         )}
                     >
-                        {showForm ? (
-                            <><X className="h-5 w-5" /> Close Form</>
+                            {showForm ? (
+                            <><X className="h-5 w-5" /> Close</>
                         ) : (
-                            <><Plus className="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" /> New Collection</>
+                            <><Plus className="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" /> New Pickup</>
                         )}
                     </motion.button>
                 )}
             </div>
+            </div>
         </div>
-        
-        {/* Background Decorative Element */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[100px] -mr-40 -mt-40" />
-      </div>
 
       <div className="max-w-7xl mx-auto px-6 sm:px-8 -mt-10 relative z-20">
         
@@ -165,7 +195,7 @@ const Dashboard = () => {
             <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-10 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
+                className="mb-10 bg-white p-6 rounded-2xl border border-emerald-100 shadow-sm overflow-hidden"
             >
                 <div className="flex flex-col md:flex-row gap-8">
                     <div className="md:w-1/2 flex flex-col justify-between">
@@ -179,7 +209,7 @@ const Dashboard = () => {
                             </div>
                             <h2 className="text-3xl font-bold text-slate-800 leading-tight">Your collector is <br />on the way!</h2>
                             <p className="text-slate-500 text-sm font-medium mt-4 leading-relaxed">
-                                Keep your <span className="text-emerald-600 font-bold">{myActivePickup.wasteType}</span> waste ready at the collection point. You can see the collector's live location on the map.
+                                Keep your <span className="text-emerald-600 font-bold">{myActivePickup.wasteType}</span> waste ready. You can see the collector's location on the map.
                             </p>
                         </div>
                         <div className="pt-8 flex items-center gap-4">
@@ -242,7 +272,7 @@ const Dashboard = () => {
                                 exit={{ opacity: 0, y: -20, height: 0 }}
                                 className="overflow-hidden"
                             >
-                                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                                <div className="bg-white rounded-2xl border border-emerald-100 shadow-sm overflow-hidden">
                                     <PickupForm onPickupCreated={handlePickupCreated} />
                                 </div>
                             </motion.div>
@@ -251,28 +281,28 @@ const Dashboard = () => {
 
                     <div className="space-y-8">
                         {/* Tab Switcher */}
-                        <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl w-fit border border-slate-200 ml-4">
+                        <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl w-fit border border-emerald-100 ml-4">
                             <button 
                                 onClick={() => setActiveTab('pickups')}
                                 className={cn(
                                     "px-6 py-2 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all flex items-center gap-2",
                                     activeTab === 'pickups' 
-                                        ? "bg-white text-slate-900 shadow-sm border border-slate-200" 
+                                        ? "bg-white text-emerald-950 shadow-sm border border-emerald-100" 
                                         : "text-slate-400 hover:text-slate-600"
                                 )}
                             >
-                                <Activity className="h-3.5 w-3.5" /> Operations
+                                <Activity className="h-3.5 w-3.5" /> Pickups
                             </button>
                             <button 
                                 onClick={() => setActiveTab('messages')}
                                 className={cn(
                                     "px-6 py-2 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-all flex items-center gap-2",
                                     activeTab === 'messages' 
-                                        ? "bg-white text-slate-900 shadow-sm border border-slate-200" 
+                                        ? "bg-white text-emerald-950 shadow-sm border border-emerald-100" 
                                         : "text-slate-400 hover:text-slate-600"
                                 )}
                             >
-                                <MessageSquare className="h-3.5 w-3.5" /> Communications
+                                <MessageSquare className="h-3.5 w-3.5" /> Messages
                                 {pickups.filter(p => !!p.collector).length > 0 && (
                                     <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
                                 )}
@@ -283,11 +313,11 @@ const Dashboard = () => {
                             <div className="space-y-6">
                                 <div className="flex justify-between items-end px-4">
                                     <div>
-                                        <h2 className="text-xl font-bold text-slate-900 tracking-tight">Recent Activity</h2>
-                                        <p className="text-slate-400 text-xs font-medium mt-1">Real-time status of your pickup requests.</p>
+                                        <h2 className="text-xl font-bold text-emerald-950 tracking-tight">Recent Pickups</h2>
+                                        <p className="text-slate-400 text-xs font-medium mt-1">Status of your requests.</p>
                                     </div>
                                 </div>
-                                <div className="bg-white rounded-2xl border border-slate-200 p-1 shadow-sm overflow-hidden">
+                                <div className="bg-white rounded-2xl border border-emerald-100 p-1 shadow-sm overflow-hidden">
                                     <PickupList pickups={pickups} loading={loading} onPickupUpdated={fetchPickups} onOpenChat={(id) => {
                                             setActiveTab('messages');
                                             setSelectedChatId(id);
@@ -297,10 +327,10 @@ const Dashboard = () => {
                         ) : (
                             <div className="space-y-6">
                                 <div className="px-4">
-                                    <h2 className="text-xl font-bold text-slate-900 tracking-tight">Direct Messaging</h2>
-                                    <p className="text-slate-400 text-xs font-medium mt-1">Coordination with assigned personnel.</p>
+                                    <h2 className="text-xl font-bold text-emerald-950 tracking-tight">Messages</h2>
+                                    <p className="text-slate-400 text-xs font-medium mt-1">Chat with your collector.</p>
                                 </div>
-                                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-2">
+                                <div className="bg-white rounded-2xl border border-emerald-100 shadow-sm overflow-hidden p-2">
                                     <MessageList 
                                         pickups={pickups} 
                                         onSelectConversation={(id) => setSelectedChatId(id)}
@@ -312,10 +342,8 @@ const Dashboard = () => {
                     </div>
                 </div>
             ) : (
-                 <div className="lg:col-span-2 bg-white rounded-[32px] border border-slate-100 p-20 flex flex-col items-center justify-center text-center space-y-6 shadow-sm">
-                    <div className="p-8 bg-emerald-50 rounded-full ring-[20px] ring-emerald-50/50">
-                        <ShieldCheck className="h-16 w-16 text-emerald-600" />
-                    </div>
+                 <div className="lg:col-span-2 bg-white rounded-[32px] border border-slate-100 p-10 flex flex-col items-center justify-center text-center space-y-6 shadow-sm overflow-hidden relative">
+                    <img src={VerificationImage} alt="Verifying" className="w-64 h-64 object-contain mb-4" />
                     <div className="space-y-3">
                         <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Verification in Progress</h2>
                         <p className="text-slate-500 text-sm max-w-sm font-medium leading-relaxed leading-relaxed">
@@ -332,27 +360,32 @@ const Dashboard = () => {
             {activeTab !== 'support' && (
                 <div className="space-y-10">
                 {user?.role === 'collector' && collectorStats && (
-                    <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden group">
+                    <div className="bg-white p-8 rounded-2xl border border-emerald-100 shadow-sm relative overflow-hidden group">
                         <div className="relative z-10 flex flex-col justify-between h-full">
                             <div>
                                 <div className="flex items-center gap-2 mb-4">
                                     <Wallet className="h-4 w-4 text-emerald-600" />
-                                    <h5 className="font-bold uppercase tracking-wider text-[10px] text-slate-400">Accrued Commission</h5>
+                                    <h5 className="font-bold uppercase tracking-wider text-[10px] text-slate-400">Total Earnings (10%)</h5>
                                 </div>
-                                <div className="text-3xl font-bold text-slate-900 tracking-tight mb-1">₹{collectorStats.earnings.toFixed(2)}</div>
-                                <p className="text-[11px] font-bold text-slate-400 mb-6">{collectorStats.count} Completed Dispatches</p>
+                                <div className="text-3xl font-bold text-emerald-950 tracking-tight mb-1">₹{collectorStats.earnings.toFixed(2)}</div>
+                                <p className="text-[11px] font-bold text-slate-400 mb-1">{collectorStats.count} Completed Pickups</p>
+                                {collectorStats.cashSpent > 0 && (
+                                     <p className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded inline-block">
+                                        + ₹{collectorStats.cashSpent} Reimbursable (Cash Paid)
+                                     </p>
+                                )}
                             </div>
                             <button 
                                 onClick={() => navigate('/profile')}
-                                className="w-full py-3 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all border border-slate-200"
+                                className="w-full py-3 mt-6 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all border border-emerald-100"
                             >
-                                Settlement Records
+                                Payment History
                             </button>
                         </div>
                     </div>
                 )}
 
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 flex flex-col items-center text-center relative group">
+                <div className="bg-white rounded-2xl shadow-sm border border-emerald-100 p-8 flex flex-col items-center text-center relative group">
                     <div className="relative mb-6">
                         <div className="w-20 h-20 rounded-full border-4 border-slate-50 overflow-hidden bg-white shadow-sm ring-1 ring-slate-100 flex items-center justify-center">
                             {user?.profilePicture ? (
@@ -366,25 +399,28 @@ const Dashboard = () => {
                             )}
                         </div>
                     </div>
-                    <h3 className="text-lg font-bold text-slate-900 tracking-tight">{user?.name}</h3>
+                    <h3 className="text-lg font-bold text-emerald-950 tracking-tight">{user?.name}</h3>
                     <div className="flex items-center gap-2 mt-2">
-                         <span className="text-slate-500 font-bold uppercase tracking-wider text-[9px] bg-slate-100 px-3 py-1 rounded-md border border-slate-200">
+                         <span className="text-slate-500 font-bold uppercase tracking-wider text-[9px] bg-slate-100 px-3 py-1 rounded-md border border-emerald-100">
                                 {user?.role}
                         </span>
                     </div>
                     <p className="text-slate-400 text-xs font-medium mt-6 pb-6 leading-relaxed max-w-[180px]">View and manage your account credentials and personal preferences.</p>
                     <button 
                         onClick={() => navigate('/profile')}
-                        className="w-full py-3.5 bg-white border border-slate-200 text-slate-800 rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-slate-50 transition-all shadow-sm flex items-center justify-center gap-2 active:scale-95"
+                        className="w-full py-3.5 bg-white border border-emerald-100 text-slate-800 rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-slate-50 transition-all shadow-sm flex items-center justify-center gap-2 active:scale-95"
                     >
                         Account Settings <ChevronRight className="h-3.5 w-3.5" />
                     </button>
                 </div>
 
-                <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm flex flex-col gap-6">
-                    <div className="flex items-center gap-2">
+                <div className="bg-white rounded-2xl p-8 border border-emerald-100 shadow-sm flex flex-col gap-6">
+                    <div className="flex items-center gap-2 mb-4">
                         <Info className="h-3.5 w-3.5 text-slate-400" />
-                        <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-900">Recycling Guide</h4>
+                        <h4 className="text-[10px] font-bold uppercase tracking-wider text-emerald-950">Recycling Guide</h4>
+                    </div>
+                    <div className="w-full h-40 bg-emerald-50/50 rounded-xl mb-6 flex items-center justify-center overflow-hidden">
+                        <img src={RecyclingGuideImage} alt="Recycling Guide" className="h-full object-contain" />
                     </div>
                     <div className="space-y-4">
                         {[
@@ -427,11 +463,11 @@ const Dashboard = () => {
         <button 
           onClick={() => setShowSupport(true)}
           title="Contact Admin"
-          className="fixed bottom-6 left-6 z-40 bg-white p-4 rounded-xl shadow-xl border border-slate-200 text-slate-400 hover:text-emerald-600 hover:border-emerald-200 transition-all active:scale-95 group"
+          className="fixed bottom-6 left-6 z-40 bg-white p-4 rounded-xl shadow-xl border border-emerald-100 text-slate-400 hover:text-emerald-600 hover:border-emerald-200 transition-all active:scale-95 group"
         >
           <HelpCircle className="h-6 w-6" />
-          <span className="absolute left-full ml-4 px-3 py-1.5 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-            Support from Kachrawale
+          <span className="absolute left-full ml-4 px-3 py-1.5 bg-emerald-950 text-white text-[10px] font-bold uppercase tracking-widest rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+            Support from Clean&Green
           </span>
         </button>
       )}

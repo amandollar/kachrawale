@@ -114,3 +114,95 @@ exports.rejectUser = asyncHandler(async (req, res) => {
 
   res.status(200).json(new ApiResponse(200, {}, 'User application rejected and removed'));
 });
+
+// @desc      Get Collector Payouts (Admin)
+// @route     GET /api/admin/payouts
+// @access    Private (Admin)
+exports.getCollectorPayouts = asyncHandler(async (req, res) => {
+  const payouts = await Pickup.aggregate([
+    { $match: { status: 'COMPLETED' } },
+    {
+      $group: {
+        _id: '$collector',
+        totalTrips: { $sum: 1 },
+        totalWeight: { $sum: '$verifiedWeight' },
+        totalValue: { $sum: '$finalAmount' },
+        cashSpent: {
+          $sum: {
+             $cond: [{ $eq: ['$paymentMode', 'CASH'] }, '$finalAmount', 0]
+          }
+        }
+      }
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'collectorInfo'
+      }
+    },
+    { $unwind: '$collectorInfo' },
+    {
+      $project: {
+        _id: 1,
+        name: '$collectorInfo.name',
+        email: '$collectorInfo.email',
+        phone: '$collectorInfo.phone',
+        vehicle: '$collectorInfo.collectorDetails.vehicleNumber',
+        totalTrips: 1,
+        totalWeight: 1,
+        totalValue: 1,
+        cashSpent: 1,
+        commission: { $multiply: ['$totalValue', 0.10] }, // 10% Commission
+        totalPayable: { 
+            $add: [
+                { $multiply: ['$totalValue', 0.10] }, // Commission
+                '$cashSpent' // Reimbursement
+            ] 
+        }
+      }
+    }
+  ]);
+
+  res.status(200).json(new ApiResponse(200, payouts));
+});
+
+// @desc      Get My Stats (Collector)
+// @route     GET /api/collector/stats
+// @access    Private (Collector)
+exports.getCollectorMyStats = asyncHandler(async (req, res) => {
+    // 1. Completed Pickups Stats
+    const stats = await Pickup.aggregate([
+        { 
+            $match: { 
+                collector: new mongoose.Types.ObjectId(req.user.id),
+                status: 'COMPLETED'
+            } 
+        },
+        {
+            $group: {
+                _id: null,
+                totalTrips: { $sum: 1 },
+                totalWeight: { $sum: '$verifiedWeight' },
+                totalValue: { $sum: '$finalAmount' },
+                cashSpent: {
+                    $sum: {
+                        $cond: [{ $eq: ['$paymentMode', 'CASH'] }, '$finalAmount', 0]
+                    }
+                }
+            }
+        }
+    ]);
+
+    const data = stats[0] || { totalTrips: 0, totalWeight: 0, totalValue: 0, cashSpent: 0 };
+    
+    // Add calculated fields
+    const response = {
+        ...data,
+        commission: data.totalValue * 0.10,
+        totalEarnings: (data.totalValue * 0.10) // Only commission is "earnings", cashSpent is reimbursement
+    };
+
+    res.status(200).json(new ApiResponse(200, response));
+});

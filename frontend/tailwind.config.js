@@ -12,10 +12,10 @@ export default {
         primary: {
           50: '#f0fdf4',
           100: '#dcfce7',
-          500: '#22c55e', // Green
-          600: '#16a34a',
-          700: '#15803d', // Deep Green
-          900: '#14532d',
+          500: '#10b981', // Emerald/Green Primary
+          600: '#059669',
+          700: '#047857', // Deep Green
+          900: '#064e3b',
         },
         saffron: {
           50: '#fff7ed',
@@ -29,9 +29,7 @@ export default {
           800: '#9a3412',
           900: '#7c2d12',
         },
-        chakra: {
-           blue: '#1e3a8a',
-        },
+        // Remove Chakra Blue to enforce Green/White theme
         gold: {
           400: '#fbbf24',
           500: '#f59e0b', // Proper Gold for premium accents

@@ -33,6 +33,59 @@ exports.createPickup = asyncHandler(async (req, res) => {
       console.log(`Notified ${collectors.length} collectors within 10km radius`);
   }
 
+  // Send Confirmation Email with Images
+  try {
+      const imageHtml = pickup.images && pickup.images.length > 0 
+          ? `<div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+               ${pickup.images.map(img => `<img src="${img}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd;" />`).join('')}
+             </div>`
+          : '';
+
+      const emailHtml = `
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden;">
+            <div style="background-color: #059669; padding: 20px; text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 24px;">Clean & Green</h1>
+                <p style="color: #ecfdf5; margin: 5px 0 0; font-size: 14px;">Pickup Confirmation</p>
+            </div>
+            
+            <div style="padding: 30px; background-color: #ffffff;">
+                <h2 style="color: #064e3b; margin-top: 0;">Request Received! 🚛</h2>
+                <p style="color: #4b5563; line-height: 1.6;">
+                    Hello, <br/><br/>
+                    We have received your request for a <strong>${pickup.wasteType.toUpperCase()}</strong> pickup. 
+                    Our collectors in your area have been notified and will accept the request shortly.
+                </p>
+                
+                <div style="background-color: #f0fdf4; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                    <p style="margin: 5px 0; color: #065f46;"><strong>Weight:</strong> ${pickup.weight} kg</p>
+                    <p style="margin: 5px 0; color: #065f46;"><strong>Location:</strong> ${req.body.location ? JSON.parse(req.body.location).formattedAddress : 'Pinned on Map'}</p>
+                </div>
+
+                <p style="color: #4b5563; font-weight: bold;">Waste Photos:</p>
+                ${imageHtml}
+
+                <div style="margin-top: 30px; text-align: center;">
+                    <a href="${process.env.CLIENT_URL || 'http://localhost:5173'}/dashboard" style="background-color: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Track Pickup</a>
+                </div>
+            </div>
+            
+            <div style="background-color: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #9ca3af; border-top: 1px solid #e5e7eb;">
+                &copy; ${new Date().getFullYear()} Clean & Green. All rights reserved.
+            </div>
+        </div>
+      `;
+      
+      const sendEmail = require('../services/emailService');
+      await sendEmail({
+          email: req.user.email,
+          subject: 'Pickup Request Received - Clean & Green',
+          message: `Your pickup request for ${pickup.wasteType} has been received.`,
+          html: emailHtml
+      });
+  } catch (err) {
+      console.error("Failed to send pickup confirmation email", err);
+  }
+
   res.status(201).json(new ApiResponse(201, pickup, 'Pickup created successfully'));
 });
 

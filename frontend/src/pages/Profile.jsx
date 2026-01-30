@@ -16,27 +16,51 @@ const Profile = () => {
   const [pickups, setPickups] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [backendStats, setBackendStats] = useState(null);
+
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const { data } = await api.get('/pickups');
-        if (data.success) {
-          setPickups(data.data);
+    const fetchPickups = async () => {
+        try {
+             const { data } = await api.get('/pickups');
+             if (data.success) setPickups(data.data);
+        } catch (error) {
+             console.error("Failed to fetch pickups", error);
         }
-      } catch (error) {
-        console.error("Failed to fetch pickups for stats", error);
-      } finally {
-        setLoading(false);
-      }
     };
-    fetchStats();
-  }, []);
+
+    const fetchStats = async () => {
+        if (user?.role === 'collector') {
+            try {
+                const { data } = await api.get('/collector/my-stats');
+                if (data.success) setBackendStats(data.data);
+            } catch (error) {
+                console.error("Failed to fetch collector stats", error);
+            }
+        }
+    };
+
+    if (user) {
+        fetchPickups();
+        fetchStats();
+    }
+  }, [user]);
 
   const stats = useMemo(() => {
     const completed = pickups.filter(p => p.status === 'COMPLETED' || p.status === 'SETTLED');
     const totalWeight = completed.reduce((acc, p) => acc + (p.verifiedWeight || p.weight || 0), 0);
-    const baseValue = completed.reduce((acc, p) => acc + (p.finalAmount || 0), 0);
-    const totalEarnings = user?.role === 'collector' ? baseValue * 0.05 : baseValue;
+    
+    // For collectors, prefer backend stats if available to ensure 10% logic match
+    let totalEarnings = 0;
+    if (user?.role === 'collector') {
+        totalEarnings = backendStats ? backendStats.totalEarnings : 0;
+    } else {
+        // Fallback for citizens or if backend stats fail (though my-stats is collector only)
+        // Citizens usually don't have "earnings" but if they did, logic would go here.
+        // For now, keep citizen logic simple or 0.
+        const baseValue = completed.reduce((acc, p) => acc + (p.finalAmount || 0), 0);
+        totalEarnings = baseValue; // Citizens get full value if applicable
+    }
+
     const carbonSaved = totalWeight * 2.5; 
     
     return {
@@ -46,7 +70,7 @@ const Profile = () => {
         carbonSaved,
         activePickups: pickups.filter(p => !['COMPLETED', 'SETTLED', 'CANCELLED'].includes(p.status)).length
     };
-  }, [pickups, user?.role]);
+  }, [pickups, user?.role, backendStats]);
 
   const isPendingCollector = user?.role === 'collector' && !user?.isVerified;
 
@@ -54,7 +78,7 @@ const Profile = () => {
   const weeklyActivity = [35, 65, 45, 85, 55, 90, 70];
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA] text-slate-900 selection:bg-emerald-100 selection:text-emerald-900">
+    <div className="min-h-screen bg-[#F7F8FA] text-emerald-950 selection:bg-emerald-100 selection:text-emerald-900">
       {/* Edit Profile Modal */}
       <AnimatePresence>
         {showEditProfile && <EditProfileForm onClose={() => setShowEditProfile(false)} />}
@@ -102,11 +126,11 @@ const Profile = () => {
                 <div className="flex flex-wrap justify-center md:justify-start gap-4">
                     <button 
                         onClick={() => setShowEditProfile(true)}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-bold text-sm transition-all shadow-xl shadow-slate-200 active:scale-[0.98]"
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3 bg-emerald-950 hover:bg-emerald-900 text-white rounded-2xl font-bold text-sm transition-all shadow-xl shadow-slate-200 active:scale-[0.98]"
                     >
                         <Edit3 className="h-4 w-4" /> Edit Profile
                     </button>
-                    <button className="flex-1 sm:flex-none flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3 bg-white hover:bg-slate-50 text-slate-700 border-2 border-slate-100 rounded-2xl font-bold text-sm transition-all shadow-sm">
+                    <button className="flex-1 sm:flex-none flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3 bg-white hover:bg-emerald-50 text-slate-700 border-2 border-emerald-100 rounded-2xl font-bold text-sm transition-all shadow-sm">
                         <Settings className="h-4 w-4 text-slate-400" /> Settings
                     </button>
                 </div>
@@ -115,7 +139,7 @@ const Profile = () => {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            <motion.div whileHover={{ y: -5 }} className="bg-white p-8 rounded-3xl border border-slate-100 shadow-premium flex flex-col gap-6 group">
+            <motion.div whileHover={{ y: -5 }} className="bg-white p-8 rounded-3xl border border-emerald-100 shadow-premium flex flex-col gap-6 group">
                 <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-all duration-500">
                     <Wallet className="h-8 w-8" />
                 </div>
@@ -124,7 +148,7 @@ const Profile = () => {
                     <p className="text-3xl font-bold text-slate-800 tracking-tight">₹{stats.totalEarnings.toFixed(2)}</p>
                 </div>
             </motion.div>
-            <motion.div whileHover={{ y: -5 }} className="bg-white p-8 rounded-3xl border border-slate-100 shadow-premium flex flex-col gap-6 group text-white bg-emerald-600 border-none">
+            <motion.div whileHover={{ y: -5 }} className="bg-white p-8 rounded-3xl border border-emerald-100 shadow-premium flex flex-col gap-6 group text-white bg-emerald-600 border-none">
                 <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-white backdrop-blur-sm">
                     <Recycle className="h-8 w-8" />
                 </div>
@@ -133,12 +157,12 @@ const Profile = () => {
                     <p className="text-3xl font-bold tracking-tight">{stats.totalWeight}<span className="text-lg ml-1 font-semibold opacity-80">kg</span></p>
                 </div>
             </motion.div>
-            <motion.div whileHover={{ y: -5 }} className="bg-white p-8 rounded-3xl border border-slate-100 shadow-premium flex flex-col gap-6 group">
+            <motion.div whileHover={{ y: -5 }} className="bg-white p-8 rounded-3xl border border-emerald-100 shadow-premium flex flex-col gap-6 group">
                 <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500">
                     <Leaf className="h-8 w-8" />
                 </div>
                 <div>
-                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2">Carbon Credit</p>
+                    <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">Carbon Saved</p>
                     <p className="text-3xl font-bold text-slate-800 tracking-tight">{stats.carbonSaved.toFixed(1)}<span className="text-lg ml-1 font-semibold text-blue-400">kg</span></p>
                 </div>
             </motion.div>
@@ -148,7 +172,7 @@ const Profile = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             {/* Left Col: Contact & Details */}
             <div className="lg:col-span-2 space-y-8">
-                <div className="bg-white rounded-3xl border border-slate-100 shadow-premium overflow-hidden">
+                <div className="bg-white rounded-3xl border border-emerald-100 shadow-premium overflow-hidden">
                     <div className="px-10 py-8 border-b border-slate-50 flex justify-between items-center">
                         <h2 className="text-xl font-bold text-slate-800 tracking-tight">Personal Information</h2>
                         <button className="text-emerald-600 font-bold text-xs uppercase tracking-widest flex items-center gap-1 hover:text-emerald-700 transition-colors">
@@ -159,20 +183,29 @@ const Profile = () => {
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Phone</label>
                             <div className="flex items-center gap-3 text-slate-700 font-bold text-base">
-                                <div className="p-2 bg-slate-50 rounded-lg"><Phone className="h-4 w-4 text-slate-400" /></div>
+                                <div className="p-2 bg-emerald-50 rounded-lg"><Phone className="h-4 w-4 text-slate-400" /></div>
                                 {user?.phone || 'Not provided'}
                             </div>
                         </div>
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Email</label>
                             <div className="flex items-center gap-3 text-slate-700 font-bold text-base">
-                                <div className="p-2 bg-slate-50 rounded-lg"><Mail className="h-4 w-4 text-slate-400" /></div>
+                                <div className="p-2 bg-emerald-50 rounded-lg"><Mail className="h-4 w-4 text-slate-400" /></div>
                                 {user?.email}
                             </div>
                         </div>
+                        {user?.upiId && (
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">UPI ID</label>
+                                <div className="flex items-center gap-3 text-slate-700 font-bold text-base">
+                                    <div className="p-2 bg-emerald-50 rounded-lg"><Wallet className="h-4 w-4 text-slate-400" /></div>
+                                    {user.upiId}
+                                </div>
+                            </div>
+                        )}
                         <div className="sm:col-span-2 space-y-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Primary Collection Address</label>
-                            <div className="flex items-start gap-3 text-slate-600 font-bold leading-relaxed bg-slate-50/50 p-4 rounded-2xl border border-slate-100 shadow-inner">
+                            <div className="flex items-start gap-3 text-slate-600 font-bold leading-relaxed bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 shadow-inner">
                                 <div className="p-2 bg-white rounded-lg shadow-sm mt-1"><MapPin className="h-4 w-4 text-emerald-500" /></div>
                                 <span className="pt-2">{user?.address?.formattedAddress || 'No primary address set'}</span>
                             </div>
@@ -181,22 +214,22 @@ const Profile = () => {
                 </div>
 
                 {user?.role === 'collector' && (
-                    <div className="bg-white rounded-3xl border border-slate-100 shadow-premium overflow-hidden">
+                    <div className="bg-white rounded-3xl border border-emerald-100 shadow-premium overflow-hidden">
                         <div className="px-10 py-8 border-b border-slate-50">
-                            <h2 className="text-xl font-bold text-slate-800 tracking-tight">Vehicle Logistics</h2>
+                            <h2 className="text-xl font-bold text-slate-800 tracking-tight">Vehicle Details</h2>
                         </div>
                         <div className="p-10 grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-10">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Vehicle Category</label>
                                 <div className="flex items-center gap-3 text-slate-700 font-bold text-base">
-                                    <div className="p-2 bg-slate-50 rounded-lg"><Truck className="h-4 w-4 text-slate-400" /></div>
+                                    <div className="p-2 bg-emerald-50 rounded-lg"><Truck className="h-4 w-4 text-slate-400" /></div>
                                     {user?.collectorDetails?.vehicleType || 'Unknown'}
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Registration Hash</label>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">License Number</label>
                                 <div className="flex items-center gap-3 text-slate-700 font-bold text-base">
-                                    <div className="p-2 bg-slate-50 rounded-lg"><Hash className="h-4 w-4 text-slate-400" /></div>
+                                    <div className="p-2 bg-emerald-50 rounded-lg"><Hash className="h-4 w-4 text-slate-400" /></div>
                                     {user?.collectorDetails?.vehicleNumber || 'Unknown'}
                                 </div>
                             </div>
@@ -207,9 +240,9 @@ const Profile = () => {
 
             {/* Right Col: Activity/Badges */}
             <div className="lg:col-span-1 space-y-8">
-                <div className="bg-white rounded-3xl border border-slate-100 shadow-premium p-8 overflow-hidden relative">
+                <div className="bg-white rounded-3xl border border-emerald-100 shadow-premium p-8 overflow-hidden relative">
                     <div className="flex justify-between items-center mb-8">
-                        <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[2px]">Pickup Activity</h3>
+                        <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[2px]">Recent Activity</h3>
                         <TrendingUp className="h-4 w-4 text-emerald-500" />
                     </div>
                     
@@ -241,7 +274,7 @@ const Profile = () => {
                                 </div>
                                 <span className="font-bold text-slate-700 text-sm">Completed</span>
                             </div>
-                            <span className="font-extrabold text-lg text-slate-900">{stats.totalPickups}</span>
+                            <span className="font-extrabold text-lg text-emerald-950">{stats.totalPickups}</span>
                         </div>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
@@ -250,13 +283,13 @@ const Profile = () => {
                                 </div>
                                 <span className="font-bold text-slate-700 text-sm">Active Jobs</span>
                             </div>
-                            <span className="font-extrabold text-lg text-slate-900">{stats.activePickups}</span>
+                            <span className="font-extrabold text-lg text-emerald-950">{stats.activePickups}</span>
                         </div>
                     </div>
                     
-                    <div className="h-[2px] bg-slate-50 my-10" />
+                    <div className="h-[2px] bg-emerald-50 my-10" />
                     
-                    <button className="w-full flex items-center justify-center gap-3 text-slate-900 font-bold text-xs uppercase tracking-[2px] hover:bg-slate-50 py-4 border-2 border-slate-100 rounded-2xl transition-all active:scale-[0.98]">
+                    <button className="w-full flex items-center justify-center gap-3 text-emerald-950 font-bold text-xs uppercase tracking-[2px] hover:bg-emerald-50 py-4 border-2 border-emerald-100 rounded-2xl transition-all active:scale-[0.98]">
                         Full History <ChevronRight className="h-4 w-4" />
                     </button>
                 </div>

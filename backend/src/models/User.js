@@ -32,6 +32,11 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please add a phone number'],
   },
+  upiId: {
+    type: String,
+    trim: true,
+    // Optional
+  },
   address: {
     // GeoJSON Point
     type: {

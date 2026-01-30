@@ -10,12 +10,12 @@ const seedRates = async () => {
     await connectDB();
 
     const standardRates = [
-      { name: 'Newspaper', price: 14, category: 'Paper', description: 'Old newspapers', unit: 'kg' },
-      { name: 'Plastic Bottles', price: 22, category: 'Plastic', description: 'PET bottles', unit: 'kg' },
-      { name: 'Mixed Metals', price: 35, category: 'Metal', description: 'Iron, Steel mix', unit: 'kg' },
-      { name: 'E-Waste', price: 180, category: 'E-Waste', description: 'Electronic boards', unit: 'kg' },
-      { name: 'Cardboard', price: 5, category: 'Paper', description: 'Cartons', unit: 'kg' },
-      { name: 'Iron', price: 26, category: 'Metal', description: 'Rods/Sheets', unit: 'kg' },
+      { name: 'Mixed Paper', price: 8, category: 'Paper', description: 'Newspapers, Cardboard mix', unit: 'kg' },
+      { name: 'Mixed Plastic', price: 15, category: 'Plastic', description: 'Bottles, Packaging', unit: 'kg' },
+      { name: 'Mixed Metal', price: 30, category: 'Metal', description: 'Iron, Steel, Aluminum mix', unit: 'kg' },
+      { name: 'E-Waste', price: 180, category: 'E-Waste', description: 'Electronic boards, Wires', unit: 'kg' },
+      { name: 'Glass', price: 2, category: 'Glass', description: 'Bottles, Broken glass', unit: 'kg' },
+      { name: 'Organic', price: 5, category: 'Organic', description: 'Compostable waste', unit: 'kg' },
     ];
 
     await WasteRate.deleteMany({});

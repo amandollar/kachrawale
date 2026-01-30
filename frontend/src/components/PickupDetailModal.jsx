@@ -103,7 +103,7 @@ const PickupDetailModal = ({ pickup, onClose, onAccept, processingId, onStatusUp
 
   const handleUPIPay = () => {
      const amount = calculateTotal();
-     const upiLink = `upi://pay?pa=kachrawale@upi&pn=Kachrawale&am=${amount}&cu=INR`;
+     const upiLink = `upi://pay?pa=clean_green@upi&pn=Clean&Green&am=${amount}&cu=INR`;
      window.location.href = upiLink;
      setPaymentMode('UPI');
   };

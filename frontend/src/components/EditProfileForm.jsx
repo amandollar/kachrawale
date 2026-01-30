@@ -9,6 +9,7 @@ const EditProfileForm = ({ onClose }) => {
   const [formData, setFormData] = useState({
     name: user?.name || '',
     phone: user?.phone || '',
+    upiId: user?.upiId || '',
   });
   const [profilePic, setProfilePic] = useState(null);
   const [preview, setPreview] = useState(user?.profilePicture || 'https://via.placeholder.com/150');
@@ -35,6 +36,7 @@ const EditProfileForm = ({ onClose }) => {
     const data = new FormData();
     data.append('name', formData.name);
     data.append('phone', formData.phone);
+    data.append('upiId', formData.upiId);
     if (profilePic) {
       data.append('profilePicture', profilePic);
     }
@@ -115,6 +117,18 @@ const EditProfileForm = ({ onClose }) => {
                         className="pl-10 w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500"
                         placeholder="Phone Number"
                         required
+                    />
+                </div>
+
+                <div className="relative">
+                    <span className="absolute top-3 left-3 text-sm font-bold text-gray-400">UPI</span>
+                    <input
+                        name="upiId"
+                        type="text"
+                        value={formData.upiId || ''}
+                        onChange={handleChange}
+                        className="pl-12 w-full p-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500"
+                        placeholder="Google Pay / UPI ID"
                     />
                 </div>
             </div>

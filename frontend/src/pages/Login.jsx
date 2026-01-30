@@ -43,41 +43,41 @@ const Login = () => {
       >
         <div className="bg-white p-8 md:p-12 rounded-xl shadow-sm border border-slate-200">
             <div className="flex flex-col items-center">
-                <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center mb-8">
+                <div className="w-12 h-12 bg-emerald-950 rounded-lg flex items-center justify-center mb-8">
                     <Recycle className="h-6 w-6 text-white" />
                 </div>
                 
                 <div className="text-center mb-10">
-                    <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Access Node</h2>
-                    <p className="text-slate-400 font-bold uppercase tracking-[2px] text-[9px] mt-3">Authentication Required</p>
+                    <h2 className="text-2xl font-bold text-emerald-950 tracking-tight">Welcome Back</h2>
+                    <p className="text-slate-400 font-bold uppercase tracking-[2px] text-[9px] mt-3">Log in to your account</p>
                 </div>
 
                 <form className="w-full space-y-4" onSubmit={handleSubmit}>
                     <div className="space-y-4">
                         <div className="relative group">
-                            <Mail className="absolute top-1/2 -translate-y-1/2 left-4 h-4 w-4 text-slate-300 group-focus-within:text-slate-900 transition-colors" />
+                            <Mail className="absolute top-1/2 -translate-y-1/2 left-4 h-4 w-4 text-slate-300 group-focus-within:text-emerald-950 transition-colors" />
                             <input
                                 id="email-address"
                                 name="email"
                                 type="email"
                                 autoComplete="email"
                                 required
-                                className="block w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-slate-100 focus:border-slate-900 focus:bg-white rounded-lg font-bold text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
-                                placeholder="Corporate Email"
+                                className="block w-full pl-12 pr-6 py-3.5 bg-emerald-50 border border-emerald-100 focus:border-slate-900 focus:bg-white rounded-lg font-bold text-xs text-emerald-950 outline-none transition-all placeholder:text-slate-400"
+                                placeholder="Email Address"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                             />
                         </div>
                         <div className="relative group">
-                            <Lock className="absolute top-1/2 -translate-y-1/2 left-4 h-4 w-4 text-slate-300 group-focus-within:text-slate-900 transition-colors" />
+                            <Lock className="absolute top-1/2 -translate-y-1/2 left-4 h-4 w-4 text-slate-300 group-focus-within:text-emerald-950 transition-colors" />
                             <input
                                 id="password"
                                 name="password"
                                 type="password"
                                 autoComplete="current-password"
                                 required
-                                className="block w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-slate-100 focus:border-slate-900 focus:bg-white rounded-lg font-bold text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
-                                placeholder="Access Key"
+                                className="block w-full pl-12 pr-6 py-3.5 bg-emerald-50 border border-emerald-100 focus:border-slate-900 focus:bg-white rounded-lg font-bold text-xs text-emerald-950 outline-none transition-all placeholder:text-slate-400"
+                                placeholder="Password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                             />
@@ -88,19 +88,19 @@ const Login = () => {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full flex justify-center py-4 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-bold text-[10px] uppercase tracking-[2px] shadow-lg shadow-slate-200 transition-all active:scale-[0.98] items-center gap-3 disabled:opacity-50"
+                            className="w-full flex justify-center py-4 px-4 bg-emerald-950 hover:bg-emerald-900 text-white rounded-lg font-bold text-[10px] uppercase tracking-[2px] shadow-lg shadow-slate-200 transition-all active:scale-[0.98] items-center gap-3 disabled:opacity-50"
                         >
                             {isSubmitting ? <Loader2 className="animate-spin h-4 w-4" /> : (
-                                <>Authenticate Cluster <ArrowRight className="h-4 w-4 text-slate-400" /></>
+                                <>Login <ArrowRight className="h-4 w-4 text-slate-400" /></>
                             )}
                         </button>
                     </div>
 
                     <div className="text-center pt-8">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            No access?{' '}
-                            <Link to="/register" className="text-slate-900 hover:underline underline-offset-8 decoration-slate-200 transition-all">
-                                Initialize New Node
+                            New here?{' '}
+                            <Link to="/register" className="text-emerald-950 hover:underline underline-offset-8 decoration-slate-200 transition-all">
+                                Create an account
                             </Link>
                         </p>
                     </div>
@@ -115,7 +115,7 @@ const Login = () => {
             </div>
             <div className="flex items-center gap-2">
                 <Recycle className="h-4 w-4" />
-                <span className="text-[9px] font-bold uppercase tracking-widest">Yield Optimized</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest">Best Rates</span>
             </div>
         </div>
       </motion.div>

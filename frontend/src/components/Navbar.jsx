@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Menu, X, LogOut, User, Recycle, LayoutDashboard, IndianRupee, ShieldCheck } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = () => {
@@ -24,7 +25,7 @@ const Navbar = () => {
               <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
                 <Recycle className="h-5 w-5 text-white" />
               </div>
-              <span className="font-bold text-lg sm:text-xl tracking-tight text-slate-800 hidden xs:block">Kachrawale</span>
+              <span className="font-bold text-lg sm:text-xl tracking-tight text-slate-800">Clean & Green</span>
             </Link>
           </div>
           
@@ -81,6 +82,19 @@ const Navbar = () => {
               </>
             ) : (
               <div className="flex items-center space-x-6">
+                {location.pathname === '/' && (
+                    <>
+                        <a href="#features" className="text-slate-600 hover:text-emerald-600 text-sm font-semibold transition-colors">
+                            Features
+                        </a>
+                        <a href="#benefits" className="text-slate-600 hover:text-emerald-600 text-sm font-semibold transition-colors">
+                            Benefits
+                        </a>
+                        <a href="#market-rates" className="text-slate-600 hover:text-emerald-600 text-sm font-semibold transition-colors">
+                            Market Rates
+                        </a>
+                    </>
+                )}
                 <Link to="/login" className="text-slate-600 hover:text-emerald-600 text-sm font-semibold transition-colors">
                   Login
                 </Link>
@@ -134,6 +148,19 @@ const Navbar = () => {
               </>
             ) : (
               <div className="space-y-2 p-2">
+                {location.pathname === '/' && (
+                    <>
+                        <a href="#features" onClick={toggleMenu} className="block px-4 py-3 rounded-lg text-base font-semibold text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 text-center">
+                            Features
+                        </a>
+                        <a href="#benefits" onClick={toggleMenu} className="block px-4 py-3 rounded-lg text-base font-semibold text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 text-center">
+                            Benefits
+                        </a>
+                        <a href="#market-rates" onClick={toggleMenu} className="block px-4 py-3 rounded-lg text-base font-semibold text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 text-center">
+                            Market Rates
+                        </a>
+                    </>
+                )}
                 <Link to="/login" onClick={toggleMenu} className="block px-4 py-3 rounded-lg text-base font-semibold text-slate-700 hover:text-emerald-600 hover:bg-emerald-50 text-center">
                   Login
                 </Link>

@@ -106,18 +106,18 @@ const ChatWindow = ({ pickupId, isSupport = false, supportUserId, onClose, mode 
         "bg-white flex flex-col overflow-hidden",
         isInline 
           ? "h-full w-full" 
-          : "fixed bottom-6 right-6 w-[400px] h-[600px] rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-200 z-[60]"
+          : "fixed bottom-6 right-6 w-[400px] h-[600px] rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-emerald-100 z-[60]"
       )}
     >
       {/* Professional Header */}
-      <div className="px-6 py-4 bg-slate-900 text-white flex justify-between items-center shrink-0">
+      <div className="px-6 py-4 bg-emerald-950 text-white flex justify-between items-center shrink-0">
         <div className="flex items-center gap-3">
            <div className="bg-white/10 p-2 rounded-lg">
               <MessageSquare className="h-4 w-4" />
            </div>
            <div>
               <h4 className="text-[11px] font-bold uppercase tracking-[1.5px] leading-tight">
-                {isSupport ? 'Kachrawale Support' : 'Pickup Chat'}
+                {isSupport ? 'Clean&Green Support' : 'Pickup Chat'}
               </h4>
               <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">
                 {isSupport ? 'Help Desk' : 'Direct Channel'}
@@ -162,13 +162,13 @@ const ChatWindow = ({ pickupId, isSupport = false, supportUserId, onClose, mode 
                         <div className={cn(
                             "max-w-[85%] px-4 py-3 rounded-lg text-xs leading-relaxed font-medium shadow-sm",
                             isMe 
-                                ? "bg-slate-900 text-white rounded-tr-none" 
-                                : "bg-white text-slate-700 border border-slate-200 rounded-tl-none"
+                                ? "bg-emerald-950 text-white rounded-tr-none" 
+                                : "bg-white text-slate-700 border border-emerald-100 rounded-tl-none"
                         )}>
                             {msg.content}
                         </div>
                         <div className="flex items-center gap-1.5 mt-1.5 px-0.5">
-                            {!isMe && <span className="text-[9px] font-bold text-slate-900 uppercase">{msg.sender.name.split(' ')[0]}</span>}
+                            {!isMe && <span className="text-[9px] font-bold text-emerald-950 uppercase">{msg.sender.name.split(' ')[0]}</span>}
                             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
                                 {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
@@ -187,12 +187,12 @@ const ChatWindow = ({ pickupId, isSupport = false, supportUserId, onClose, mode 
           placeholder="Type a message..." 
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          className="flex-1 bg-slate-50 border border-slate-200 focus:border-slate-900 rounded-lg px-4 py-3 text-xs font-medium outline-none transition-all placeholder:text-slate-400"
+          className="flex-1 bg-slate-50 border border-emerald-100 focus:border-slate-900 rounded-lg px-4 py-3 text-xs font-medium outline-none transition-all placeholder:text-slate-400"
         />
         <button 
           type="submit"
           disabled={!newMessage.trim()}
-          className="bg-slate-900 text-white p-3 rounded-lg shadow-md hover:bg-slate-800 transition-all disabled:opacity-30 disabled:hover:bg-slate-900"
+          className="bg-emerald-950 text-white p-3 rounded-lg shadow-md hover:bg-slate-800 transition-all disabled:opacity-30 disabled:hover:bg-emerald-950"
         >
           <Send className="h-4 w-4" />
         </button>

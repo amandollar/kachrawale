@@ -1,6 +1,6 @@
-# Kachrawale ♻️
+# Clean & Green ♻️
 
-**Kachrawale** is a modern, real-time waste management platform connecting citizens, waste collectors, and administrators. It streamlines the recycling process through live tracking, instant communication, and transparent pricing.
+**Clean & Green** is a modern, real-time waste management platform connecting citizens, waste collectors, and administrators. It streamlines the recycling process through live tracking, instant communication, and transparent pricing.
 
 ![Project Status](https://img.shields.io/badge/status-active-emerald)
 ![License](https://img.shields.io/badge/license-MIT-blue)
@@ -48,8 +48,8 @@
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/kachrawale.git
-cd kachrawale
+git clone https://github.com/yourusername/clean-and-green.git
+cd clean-and-green
 ```
 
 ### 2. Backend Setup

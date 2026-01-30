@@ -17,4 +17,15 @@ router.get('/verifications', getPendingVerifications);
 router.put('/verify/:id', verifyUser);
 router.delete('/reject/:id', rejectUser);
 
-module.exports = router;
+// Payouts Route
+const { getCollectorPayouts, getCollectorMyStats } = require('../controllers/adminController');
+router.get('/payouts', getCollectorPayouts);
+
+// Collector Routes (Can be moved to separate file later, but keeping here for simplicity as requested "admin routes")
+// Note: This needs 'protect' but NOT 'admin' authorize. We will add a flexible route below.
+const collectorRouter = express.Router();
+collectorRouter.use(protect);
+collectorRouter.use(authorize('collector'));
+collectorRouter.get('/my-stats', getCollectorMyStats);
+
+module.exports = { router, collectorRouter }; // Exporting both to be mounted in app.js

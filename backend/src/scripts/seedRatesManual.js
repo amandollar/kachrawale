@@ -6,7 +6,7 @@ dotenv.config({ path: '../../.env' }); // Adjust path if needed
 
 const connectDB = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/kachrawale');
+        await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/clean-green');
         console.log('MongoDB Connected');
     } catch (err) {
         console.error(err);

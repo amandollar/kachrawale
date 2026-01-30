@@ -19,8 +19,15 @@ const sendEmail = async (options) => {
     from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
     to: options.email,
     subject: options.subject,
-    text: options.message,
-    // html: options.html // Optional: Add HTML templates later
+    text: options.message, // Fallback for clients that don't render HTML
+    html: options.html || `
+      <div style="font-family: Arial, sans-serif; padding: 20px;">
+        <h2>${options.subject}</h2>
+        <p>${options.message.replace(/\n/g, '<br>')}</p>
+        <br>
+        <p style="color: #888; font-size: 12px;">Sent by Clean&Green</p>
+      </div>
+    `
   };
 
   const info = await transporter.sendMail(message);

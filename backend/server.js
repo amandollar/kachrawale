@@ -37,7 +37,7 @@ app.use((req, res, next) => {
 
 const auth = require('./src/routes/authRoutes');
 const pickups = require('./src/routes/pickupRoutes');
-const admin = require('./src/routes/adminRoutes');
+const { router: admin, collectorRouter } = require('./src/routes/adminRoutes');
 const marketplace = require('./src/routes/marketplaceRoutes');
 const rates = require('./src/routes/rateRoutes');
 const chat = require('./src/routes/chatRoutes');
@@ -45,11 +45,12 @@ const chat = require('./src/routes/chatRoutes');
 app.use('/api/auth', auth);
 app.use('/api/pickups', pickups);
 app.use('/api/admin', admin);
+app.use('/api/collector', collectorRouter);
 app.use('/api/marketplace', marketplace);
 app.use('/api/rates', rates);
 app.use('/api/chat', chat);
 app.get('/', (req, res) => {
-  res.send('Kachrawale API is running...');
+  res.send('Clean&Green API is running...');
 });
 
 // Error Handler Middleware

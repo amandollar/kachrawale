@@ -79,22 +79,22 @@ const Register = () => {
       >
         <div className="bg-white p-8 md:p-12 rounded-xl shadow-sm border border-slate-200">
             <div className="flex flex-col items-center mb-10">
-                <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center mb-6">
+                <div className="w-12 h-12 bg-emerald-950 rounded-lg flex items-center justify-center mb-6">
                     <Recycle className="h-6 w-6 text-white" />
                 </div>
-                <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Create Account</h2>
+                <h2 className="text-2xl font-bold text-emerald-950 tracking-tight">Create Account</h2>
                 <p className="text-slate-400 font-bold uppercase tracking-[2px] text-[9px] mt-3">Join our community</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-10">
                 {/* Role Selection */}
-                <div className="grid grid-cols-2 gap-2 p-1 bg-slate-50 rounded-lg border border-slate-100">
+                <div className="grid grid-cols-2 gap-2 p-1 bg-emerald-50 rounded-lg border border-emerald-100">
                     <button
                         type="button"
                         onClick={() => setRole('citizen')}
                         className={cn(
                             "py-3 rounded-md flex flex-col items-center gap-1 transition-all font-bold text-[10px] uppercase tracking-wider",
-                            role === 'citizen' ? "bg-white text-slate-900 shadow-sm border border-slate-100" : "text-slate-400 hover:text-slate-600"
+                            role === 'citizen' ? "bg-white text-emerald-950 shadow-sm border border-emerald-100" : "text-slate-400 hover:text-slate-600"
                         )}
                     >
                         Citizen
@@ -104,7 +104,7 @@ const Register = () => {
                         onClick={() => setRole('collector')}
                         className={cn(
                             "py-3 rounded-md flex flex-col items-center gap-1 transition-all font-bold text-[10px] uppercase tracking-wider",
-                            role === 'collector' ? "bg-white text-slate-900 shadow-sm border border-slate-100" : "text-slate-400 hover:text-slate-600"
+                            role === 'collector' ? "bg-white text-emerald-950 shadow-sm border border-emerald-100" : "text-slate-400 hover:text-slate-600"
                         )}
                     >
                         Collector
@@ -115,24 +115,24 @@ const Register = () => {
                 <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="relative group">
-                            <User className="absolute top-1/2 -translate-y-1/2 left-4 h-4 w-4 text-slate-300 group-focus-within:text-slate-900 transition-colors" />
+                            <User className="absolute top-1/2 -translate-y-1/2 left-4 h-4 w-4 text-slate-300 group-focus-within:text-emerald-950 transition-colors" />
                             <input
                                 name="name"
                                 type="text"
                                 required
-                                className="block w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-slate-100 focus:border-slate-900 focus:bg-white rounded-lg font-bold text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
+                                className="block w-full pl-12 pr-6 py-3.5 bg-emerald-50 border border-emerald-100 focus:border-slate-900 focus:bg-white rounded-lg font-bold text-xs text-emerald-950 outline-none transition-all placeholder:text-slate-400"
                                 placeholder="Full Name"
                                 value={formData.name}
                                 onChange={handleInputChange}
                             />
                         </div>
                         <div className="relative group">
-                            <Mail className="absolute top-1/2 -translate-y-1/2 left-4 h-4 w-4 text-slate-300 group-focus-within:text-slate-900 transition-colors" />
+                            <Mail className="absolute top-1/2 -translate-y-1/2 left-4 h-4 w-4 text-slate-300 group-focus-within:text-emerald-950 transition-colors" />
                             <input
                                 name="email"
                                 type="email"
                                 required
-                                className="block w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-slate-100 focus:border-slate-900 focus:bg-white rounded-lg font-bold text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
+                                className="block w-full pl-12 pr-6 py-3.5 bg-emerald-50 border border-emerald-100 focus:border-slate-900 focus:bg-white rounded-lg font-bold text-xs text-emerald-950 outline-none transition-all placeholder:text-slate-400"
                                 placeholder="Email Address"
                                 value={formData.email}
                                 onChange={handleInputChange}
@@ -142,38 +142,51 @@ const Register = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="relative group">
-                            <Lock className="absolute top-1/2 -translate-y-1/2 left-4 h-4 w-4 text-slate-300 group-focus-within:text-slate-900 transition-colors" />
+                            <Lock className="absolute top-1/2 -translate-y-1/2 left-4 h-4 w-4 text-slate-300 group-focus-within:text-emerald-950 transition-colors" />
                             <input
                                 name="password"
                                 type="password"
                                 required
-                                className="block w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-slate-100 focus:border-slate-900 focus:bg-white rounded-lg font-bold text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
+                                className="block w-full pl-12 pr-6 py-3.5 bg-emerald-50 border border-emerald-100 focus:border-slate-900 focus:bg-white rounded-lg font-bold text-xs text-emerald-950 outline-none transition-all placeholder:text-slate-400"
                                 placeholder="Password"
                                 value={formData.password}
                                 onChange={handleInputChange}
                             />
                         </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="relative group">
-                            <Phone className="absolute top-1/2 -translate-y-1/2 left-4 h-4 w-4 text-slate-300 group-focus-within:text-slate-900 transition-colors" />
+                            <Phone className="absolute top-1/2 -translate-y-1/2 left-4 h-4 w-4 text-slate-300 group-focus-within:text-emerald-950 transition-colors" />
                             <input
                                 name="phone"
                                 type="tel"
                                 required
-                                className="block w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-slate-100 focus:border-slate-900 focus:bg-white rounded-lg font-bold text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
+                                className="block w-full pl-12 pr-6 py-3.5 bg-emerald-50 border border-emerald-100 focus:border-slate-900 focus:bg-white rounded-lg font-bold text-xs text-emerald-950 outline-none transition-all placeholder:text-slate-400"
                                 placeholder="Phone Number"
                                 value={formData.phone}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                        <div className="relative group">
+                            <h3 className="absolute top-1/2 -translate-y-1/2 left-4 text-[10px] font-bold text-slate-400 select-none">UPI</h3>
+                            <input
+                                name="upiId"
+                                type="text"
+                                className="block w-full pl-12 pr-6 py-3.5 bg-emerald-50 border border-emerald-100 focus:border-slate-900 focus:bg-white rounded-lg font-bold text-xs text-emerald-950 outline-none transition-all placeholder:text-slate-400"
+                                placeholder="Google Pay / UPI ID (Optional)"
+                                value={formData.upiId || ''}
                                 onChange={handleInputChange}
                             />
                         </div>
                     </div>
 
                     <div className="relative group">
-                        <MapPin className="absolute top-1/2 -translate-y-1/2 left-4 h-4 w-4 text-slate-300 group-focus-within:text-slate-900 transition-colors" />
+                        <MapPin className="absolute top-1/2 -translate-y-1/2 left-4 h-4 w-4 text-slate-300 group-focus-within:text-emerald-950 transition-colors" />
                         <input
                             name="address.formattedAddress"
                             type="text"
                             required
-                            className="block w-full pl-12 pr-6 py-3.5 bg-slate-50 border border-slate-100 focus:border-slate-900 focus:bg-white rounded-lg font-bold text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
+                            className="block w-full pl-12 pr-6 py-3.5 bg-emerald-50 border border-emerald-100 focus:border-slate-900 focus:bg-white rounded-lg font-bold text-xs text-emerald-950 outline-none transition-all placeholder:text-slate-400"
                             placeholder="Full Address"
                             value={formData.address.formattedAddress}
                             onChange={handleInputChange}
@@ -188,7 +201,7 @@ const Register = () => {
                             initial={{ opacity: 0, scale: 0.98 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.98 }}
-                            className="p-6 bg-slate-50 rounded-xl border border-slate-100 space-y-6"
+                            className="p-6 bg-emerald-50 rounded-xl border border-emerald-100 space-y-6"
                         >
                             <div className="flex items-center gap-2 mb-2">
                                 <Truck className="h-4 w-4 text-slate-400" />
@@ -204,7 +217,7 @@ const Register = () => {
                                         className={cn(
                                             "flex-1 py-3 rounded-lg border text-[9px] font-bold uppercase tracking-tighter transition-all",
                                             formData.collectorDetails.vehicleType === type 
-                                                ? "bg-slate-900 text-white border-slate-900" 
+                                                ? "bg-emerald-950 text-white border-slate-900" 
                                                 : "bg-white text-slate-400 border-slate-200 hover:border-slate-300"
                                         )}
                                     >
@@ -214,12 +227,12 @@ const Register = () => {
                             </div>
 
                             <div className="relative group">
-                                <Hash className="absolute top-1/2 -translate-y-1/2 left-4 h-4 w-4 text-slate-300 group-focus-within:text-slate-900 transition-colors" />
+                                <Hash className="absolute top-1/2 -translate-y-1/2 left-4 h-4 w-4 text-slate-300 group-focus-within:text-emerald-950 transition-colors" />
                                 <input
                                     name="collectorDetails.vehicleNumber"
                                     type="text"
                                     required
-                                    className="block w-full pl-12 pr-6 py-3.5 bg-white border border-slate-100 focus:border-slate-900 rounded-lg font-bold text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
+                                    className="block w-full pl-12 pr-6 py-3.5 bg-white border border-emerald-100 focus:border-slate-900 rounded-lg font-bold text-xs text-emerald-950 outline-none transition-all placeholder:text-slate-400"
                                     placeholder="Vehicle Number / License Plate"
                                     value={formData.collectorDetails.vehicleNumber}
                                     onChange={handleInputChange}
@@ -234,23 +247,23 @@ const Register = () => {
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full flex justify-center py-4 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-bold text-[10px] uppercase tracking-[2px] shadow-lg shadow-slate-200 transition-all active:scale-[0.98] items-center gap-3 disabled:opacity-50"
+                        className="w-full flex justify-center py-4 px-4 bg-emerald-950 hover:bg-emerald-900 text-white rounded-lg font-bold text-[10px] uppercase tracking-[2px] shadow-lg shadow-slate-200 transition-all active:scale-[0.98] items-center gap-3 disabled:opacity-50"
                     >
                         {isSubmitting ? <Loader2 className="animate-spin h-4 w-4" /> : (
-                            <>Register <ArrowRight className="h-4 w-4 text-slate-400" /></>
+                            <>Sign Up <ArrowRight className="h-4 w-4 text-slate-400" /></>
                         )}
                     </button>
                 </div>
 
                 <div className="text-center">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-loose">
-                        By registering, you agree to our <a href="#" className="text-slate-900 underline underline-offset-4 decoration-slate-200 transition-all">Terms of Service</a>
+                        By registering, you agree to our <a href="#" className="text-emerald-950 underline underline-offset-4 decoration-slate-200 transition-all">Terms of Service</a>
                     </p>
                     <div className="mt-8 pt-6 border-t border-slate-50">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                             Already have an account?{' '}
-                            <Link to="/login" className="text-slate-900 hover:underline underline-offset-8 decoration-slate-200 transition-all">
-                                Login
+                            <Link to="/login" className="text-emerald-950 hover:underline underline-offset-8 decoration-slate-200 transition-all">
+                                Login here
                             </Link>
                         </p>
                     </div>
