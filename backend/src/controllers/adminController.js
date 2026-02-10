@@ -1,7 +1,9 @@
 
+const mongoose = require('mongoose');
 const Pickup = require('../models/Pickup');
 const User = require('../models/User');
 const asyncHandler = require('../utils/asyncHandler');
+const ApiError = require('../utils/ApiError');
 const ApiResponse = require('../utils/ApiResponse');
 
 // @desc      Get Dashboard Stats (KPIs)
@@ -67,12 +69,14 @@ exports.getDashboardStats = asyncHandler(async (req, res) => {
 exports.getHeatmapData = asyncHandler(async (req, res) => {
   const pickups = await Pickup.find({}, 'location weight wasteType');
 
-  const points = pickups.map(p => ({
-    lat: p.location.coordinates[1],
-    lng: p.location.coordinates[0],
-    weight: p.weight,
-    type: p.wasteType
-  }));
+  const points = pickups
+    .filter(p => p.location && p.location.coordinates && p.location.coordinates.length >= 2)
+    .map(p => ({
+      lat: p.location.coordinates[1],
+      lng: p.location.coordinates[0],
+      weight: p.weight,
+      type: p.wasteType
+    }));
 
   res.status(200).json(new ApiResponse(200, points));
 });

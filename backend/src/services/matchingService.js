@@ -7,6 +7,12 @@ const User = require('../models/User');
  */
 exports.findBestCollectors = async (pickup) => {
   try {
+    // Validate pickup and location
+    if (!pickup || !pickup.location || !pickup.location.coordinates || pickup.location.coordinates.length < 2) {
+      console.warn('Invalid pickup location for matching');
+      return [];
+    }
+
     const { coordinates } = pickup.location;
     
     // Max distance in meters (10km)

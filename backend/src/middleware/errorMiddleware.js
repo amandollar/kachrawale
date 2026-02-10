@@ -9,7 +9,7 @@ const errorHandler = (err, req, res, next) => {
   if (!(error instanceof ApiError)) {
     // Mongoose bad ObjectId
     if (err.name === 'CastError') {
-       error = new ApiError(400, `Resource not found. Invalid: ${err.path}`);
+       error = new ApiError(400, `Resource not found. Invalid: ${err.path || 'unknown path'}`);
     } 
     // Mongoose duplicate key
     else if (err.code === 11000) {

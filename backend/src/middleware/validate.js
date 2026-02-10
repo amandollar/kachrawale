@@ -8,13 +8,13 @@ const validate = (schema) => (req, res, next) => {
     req.body = schema.parse(req.body);
     next();
   } catch (err) {
-    if (err.errors) {
-       // Zod Error
-       const errorMessage = err.errors.map(e => e.message).join(', ');
+    if (err.issues) {
+       // Zod Error - Zod uses 'issues' property, not 'errors'
+       const errorMessage = err.issues.map(e => e.message).join(', ');
        // Throw ApiError, global middleware will handle it
-       return next(new ApiError(400, errorMessage, err.errors));
+       return next(new ApiError(400, errorMessage, err.issues));
     }
-    return next(new ApiError(400, err.message));
+    return next(new ApiError(400, err.message || 'Validation failed'));
   }
 };
 

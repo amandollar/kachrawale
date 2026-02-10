@@ -1,6 +1,7 @@
 
 const Pickup = require('../models/Pickup');
 const Transaction = require('../models/Transaction');
+const WasteRate = require('../models/WasteRate');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 const ApiResponse = require('../utils/ApiResponse');
@@ -31,12 +32,33 @@ exports.purchaseListing = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'This listing is not available for purchase (Status must be COMPLETED)');
   }
 
-  // Calculate Amount (Simple logic: weight * rough rate)
-  // Rates: Plastic=10, Metal=20, E-waste=50, Organic=1
-  const rates = { plastic: 10, metal: 20, 'e-waste': 50, organic: 1 };
-  const rate = rates[pickup.wasteType] || 1;
+  // Calculate Amount using database rates
   const weight = pickup.verifiedWeight || pickup.weight || 0;
-  const amount = weight * rate;
+  if (!weight || weight <= 0) {
+      throw new ApiError(400, "Invalid pickup weight");
+  }
+
+  // Normalize waste type to match rate category
+  let rateCategory;
+  if (pickup.wasteType.toLowerCase() === 'e-waste') {
+      rateCategory = 'E-Waste';
+  } else {
+      rateCategory = pickup.wasteType.charAt(0).toUpperCase() + pickup.wasteType.slice(1).toLowerCase();
+  }
+
+  // Find matching rate from database
+  const wasteRate = await WasteRate.findOne({ 
+    $or: [
+      { name: pickup.wasteType.toLowerCase() },
+      { category: rateCategory }
+    ]
+  }).sort({ price: -1 }); // Get highest matching rate if multiple
+
+  if (!wasteRate) {
+      throw new ApiError(500, `Market rate for category ${rateCategory} not found. Please contact admin.`);
+  }
+
+  const amount = Number((weight * wasteRate.price).toFixed(2));
 
   if (!amount || amount <= 0) {
       throw new ApiError(400, "Invalid pickup weight or amount");

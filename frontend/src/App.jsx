@@ -37,8 +37,53 @@ function App() {
     <AuthProvider>
       <SocketProvider>
         <Router>
-          <div className="min-h-screen bg-gray-50 font-sans">
-            <Toaster position="top-right" />
+          <div className="min-h-screen bg-slate-50 font-sans">
+            <Toaster 
+              position="top-center"
+              containerStyle={{
+                zIndex: 9999,
+                top: '20px',
+              }}
+              toastOptions={{
+                duration: 5000,
+                style: {
+                  background: '#fff',
+                  color: '#1e293b',
+                  padding: '16px 20px',
+                  borderRadius: '12px',
+                  boxShadow: '0 10px 30px -10px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+                  border: '1px solid #e2e8f0',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  minWidth: '300px',
+                  maxWidth: '500px',
+                  zIndex: 9999,
+                },
+                success: {
+                  iconTheme: {
+                    primary: '#10b981',
+                    secondary: '#fff',
+                  },
+                  style: {
+                    border: '1px solid #10b981',
+                    background: '#f0fdf4',
+                    color: '#166534',
+                  },
+                },
+                error: {
+                  iconTheme: {
+                    primary: '#ef4444',
+                    secondary: '#fff',
+                  },
+                  style: {
+                    border: '2px solid #ef4444',
+                    background: '#fef2f2',
+                    color: '#991b1b',
+                    fontWeight: '600',
+                  },
+                },
+              }}
+            />
             <Navbar />
             <Routes>
               <Route path="/" element={<LandingPage />} />

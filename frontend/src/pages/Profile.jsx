@@ -78,7 +78,7 @@ const Profile = () => {
   const weeklyActivity = [35, 65, 45, 85, 55, 90, 70];
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA] text-emerald-950 selection:bg-emerald-100 selection:text-emerald-900">
+    <div className="min-h-screen bg-[#F7F8FA] text-slate-900 selection:bg-emerald-100 selection:text-emerald-500">
       {/* Edit Profile Modal */}
       <AnimatePresence>
         {showEditProfile && <EditProfileForm onClose={() => setShowEditProfile(false)} />}
@@ -126,7 +126,7 @@ const Profile = () => {
                 <div className="flex flex-wrap justify-center md:justify-start gap-4">
                     <button 
                         onClick={() => setShowEditProfile(true)}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3 bg-emerald-950 hover:bg-emerald-900 text-white rounded-2xl font-bold text-sm transition-all shadow-xl shadow-slate-200 active:scale-[0.98]"
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-2xl font-bold text-sm transition-all shadow-xl shadow-slate-200 active:scale-[0.98]"
                     >
                         <Edit3 className="h-4 w-4" /> Edit Profile
                     </button>
@@ -148,7 +148,7 @@ const Profile = () => {
                     <p className="text-3xl font-bold text-slate-800 tracking-tight">₹{stats.totalEarnings.toFixed(2)}</p>
                 </div>
             </motion.div>
-            <motion.div whileHover={{ y: -5 }} className="bg-white p-8 rounded-3xl border border-emerald-100 shadow-premium flex flex-col gap-6 group text-white bg-emerald-600 border-none">
+            <motion.div whileHover={{ y: -5 }} className="bg-white p-8 rounded-3xl border border-emerald-100 shadow-premium flex flex-col gap-6 group text-white bg-emerald-500 border-none">
                 <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-white backdrop-blur-sm">
                     <Recycle className="h-8 w-8" />
                 </div>
@@ -175,7 +175,7 @@ const Profile = () => {
                 <div className="bg-white rounded-3xl border border-emerald-100 shadow-premium overflow-hidden">
                     <div className="px-10 py-8 border-b border-slate-50 flex justify-between items-center">
                         <h2 className="text-xl font-bold text-slate-800 tracking-tight">Personal Information</h2>
-                        <button className="text-emerald-600 font-bold text-xs uppercase tracking-widest flex items-center gap-1 hover:text-emerald-700 transition-colors">
+                        <button className="text-emerald-500 font-bold text-xs uppercase tracking-widest flex items-center gap-1 hover:text-emerald-400 transition-colors">
                             Update <ExternalLink className="h-3 w-3" />
                         </button>
                     </div>
@@ -256,7 +256,7 @@ const Profile = () => {
                                     transition={{ duration: 1, delay: i * 0.1 }}
                                     className={cn(
                                         "w-[6px] rounded-full transition-all duration-300",
-                                        i === 5 ? "bg-emerald-600 shadow-[0_0_12px_rgba(16,185,129,0.4)]" : "bg-slate-100 group-hover:bg-slate-200"
+                                        i === 5 ? "bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.3)]" : "bg-slate-100 group-hover:bg-slate-200"
                                     )}
                                 />
                                 <span className="text-[8px] font-bold text-slate-300 group-hover:text-slate-500">
@@ -269,12 +269,12 @@ const Profile = () => {
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+                                <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-500">
                                     <CheckCircle2 className="h-6 w-6" />
                                 </div>
                                 <span className="font-bold text-slate-700 text-sm">Completed</span>
                             </div>
-                            <span className="font-extrabold text-lg text-emerald-950">{stats.totalPickups}</span>
+                            <span className="font-extrabold text-lg text-slate-900">{stats.totalPickups}</span>
                         </div>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-4">
@@ -283,13 +283,13 @@ const Profile = () => {
                                 </div>
                                 <span className="font-bold text-slate-700 text-sm">Active Jobs</span>
                             </div>
-                            <span className="font-extrabold text-lg text-emerald-950">{stats.activePickups}</span>
+                            <span className="font-extrabold text-lg text-slate-900">{stats.activePickups}</span>
                         </div>
                     </div>
                     
                     <div className="h-[2px] bg-emerald-50 my-10" />
                     
-                    <button className="w-full flex items-center justify-center gap-3 text-emerald-950 font-bold text-xs uppercase tracking-[2px] hover:bg-emerald-50 py-4 border-2 border-emerald-100 rounded-2xl transition-all active:scale-[0.98]">
+                    <button className="w-full flex items-center justify-center gap-3 text-emerald-500 font-bold text-xs uppercase tracking-[2px] hover:bg-emerald-50 py-4 border-2 border-emerald-100 rounded-2xl transition-all active:scale-[0.98]">
                         Full History <ChevronRight className="h-4 w-4" />
                     </button>
                 </div>

@@ -124,39 +124,39 @@ const AdminPanel = () => {
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-                <ShieldCheck className="h-10 w-10 text-emerald-600" />
-                <h1 className="text-3xl font-bold text-emerald-950">Admin Control Center</h1>
+                <ShieldCheck className="h-10 w-10 text-emerald-500" />
+                <h1 className="text-3xl font-bold text-slate-900">Admin Control Center</h1>
             </div>
             
             <div className="flex bg-white rounded-lg p-1 shadow-sm border border-emerald-100">
                 <button 
                     onClick={() => setActiveTab('verifications')}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'verifications' ? 'bg-emerald-100 text-emerald-800' : 'text-slate-600 hover:bg-emerald-50'}`}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'verifications' ? 'bg-emerald-100 text-emerald-600' : 'text-slate-600 hover:bg-emerald-50'}`}
                 >
                     Verifications
                 </button>
                 <button 
                     onClick={() => setActiveTab('rates')}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'rates' ? 'bg-emerald-100 text-emerald-800' : 'text-slate-600 hover:bg-emerald-50'}`}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'rates' ? 'bg-emerald-100 text-emerald-600' : 'text-slate-600 hover:bg-emerald-50'}`}
                 >
                     Manage Prices
                 </button>
                  <button 
                     onClick={() => setActiveTab('analytics')}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${activeTab === 'analytics' ? 'bg-emerald-100 text-emerald-800' : 'text-slate-600 hover:bg-emerald-50'}`}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${activeTab === 'analytics' ? 'bg-emerald-100 text-emerald-600' : 'text-slate-600 hover:bg-emerald-50'}`}
                 >
                      Analytics
                 </button>
                  <button 
                     onClick={() => setActiveTab('payouts')}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${activeTab === 'payouts' ? 'bg-emerald-100 text-emerald-800' : 'text-slate-600 hover:bg-emerald-50'}`}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${activeTab === 'payouts' ? 'bg-emerald-100 text-emerald-600' : 'text-slate-600 hover:bg-emerald-50'}`}
                 >
                      Payouts
                 </button>
                 <div className="w-px bg-emerald-100 my-2 mx-1"></div>
                 <button 
                     onClick={() => setActiveTab('support')}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${activeTab === 'support' ? 'bg-emerald-100 text-emerald-800' : 'text-slate-600 hover:bg-emerald-50'}`}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${activeTab === 'support' ? 'bg-emerald-100 text-emerald-600' : 'text-slate-600 hover:bg-emerald-50'}`}
                 >
                     <MessageSquare className="h-4 w-4" /> Support Center
                 </button>
@@ -166,7 +166,7 @@ const AdminPanel = () => {
         {activeTab === 'verifications' && (
             <div className="bg-white rounded-xl shadow-sm border border-emerald-100 overflow-hidden">
                 <div className="p-6 border-b border-emerald-50 flex justify-between items-center">
-                    <h2 className="text-xl font-semibold text-emerald-950">Pending Collector Applications</h2>
+                    <h2 className="text-xl font-semibold text-slate-900">Pending Collector Applications</h2>
                     <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold">
                         {users.length} Pending
                     </span>
@@ -196,7 +196,7 @@ const AdminPanel = () => {
                                     <div className="flex-grow space-y-3">
                                         <div className="flex justify-between items-start">
                                             <div>
-                                                <h3 className="text-lg font-bold text-emerald-950">{applicant.name}</h3>
+                                                <h3 className="text-lg font-bold text-slate-900">{applicant.name}</h3>
                                                 <div className="text-sm text-slate-500 space-y-1">
                                                     <p className="flex items-center gap-2"><User className="h-3 w-3" /> {applicant.email}</p>
                                                     <p className="flex items-center gap-2"><Phone className="h-3 w-3" /> {applicant.phone}</p>
@@ -210,19 +210,19 @@ const AdminPanel = () => {
                                             <div className="bg-emerald-50/50 p-4 rounded-lg border border-emerald-100 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                                                 <div>
                                                     <span className="text-slate-400 block text-xs uppercase tracking-wider mb-1">Vehicle Type</span>
-                                                    <span className="font-semibold flex items-center gap-2 text-emerald-900">
+                                                    <span className="font-semibold flex items-center gap-2 text-emerald-600">
                                                         <Truck className="h-4 w-4 text-slate-400" /> {applicant.collectorDetails.vehicleType || 'N/A'}
                                                     </span>
                                                 </div>
                                                 <div>
                                                     <span className="text-slate-400 block text-xs uppercase tracking-wider mb-1">Plate Number</span>
-                                                    <span className="font-semibold font-mono bg-white px-2 py-1 rounded border border-emerald-100 inline-block text-emerald-900">
+                                                    <span className="font-semibold font-mono bg-white px-2 py-1 rounded border border-emerald-100 inline-block text-emerald-600">
                                                         {applicant.collectorDetails.vehicleNumber || 'N/A'}
                                                     </span>
                                                 </div>
                                                 <div>
                                                     <span className="text-slate-400 block text-xs uppercase tracking-wider mb-1">License Number</span>
-                                                    <span className="font-semibold flex items-center gap-2 text-emerald-900">
+                                                    <span className="font-semibold flex items-center gap-2 text-emerald-600">
                                                         <FileText className="h-4 w-4 text-slate-400" /> {applicant.collectorDetails.licenseNumber || 'N/A'}
                                                     </span>
                                                 </div>
@@ -230,7 +230,7 @@ const AdminPanel = () => {
                                         )}
                                     </div>
                                     <div className="flex flex-row md:flex-col gap-3 justify-center pl-0 md:pl-4 md:border-l border-emerald-50 min-w-[140px]">
-                                        <button onClick={() => handleVerify(applicant._id)} className="flex-1 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition flex items-center justify-center gap-2 text-sm font-medium shadow-sm">
+                                        <button onClick={() => handleVerify(applicant._id)} className="flex-1 bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-400 transition flex items-center justify-center gap-2 text-sm font-medium shadow-sm">
                                             <Check className="h-4 w-4" /> Approve
                                         </button>
                                         <button onClick={() => handleReject(applicant._id)} className="flex-1 bg-white text-rose-600 border border-rose-200 px-4 py-2 rounded-lg hover:bg-rose-50 transition flex items-center justify-center gap-2 text-sm font-medium">
@@ -261,7 +261,7 @@ const AdminPanel = () => {
             <div className="bg-white rounded-xl shadow-sm border border-emerald-100 p-6">
                 <div className="flex justify-between items-center mb-6">
                     <div>
-                        <h2 className="text-xl font-semibold text-emerald-950">Support Center</h2>
+                        <h2 className="text-xl font-semibold text-slate-900">Support Center</h2>
                         <p className="text-slate-500 text-sm mt-1">Manage user inquiries and real-time support chats.</p>
                     </div>
                 </div>
@@ -279,7 +279,7 @@ const AdminPanel = () => {
                     <h2 className="text-xl font-semibold text-emerald-950">Scrap Prices</h2>
                     <button 
                         onClick={() => { setEditingRate(null); setShowRateModal(true); }}
-                        className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition flex items-center gap-2 text-sm font-semibold shadow-sm"
+                        className="bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-400 transition flex items-center gap-2 text-sm font-semibold shadow-sm"
                     >
                         <Plus className="h-4 w-4" /> Add Rate
                     </button>
@@ -299,19 +299,19 @@ const AdminPanel = () => {
                         <tbody className="divide-y divide-emerald-50">
                             {rates.map((rate) => (
                                 <tr key={rate._id} className="hover:bg-emerald-50/30 transition-colors">
-                                    <td className="px-6 py-4 font-medium text-emerald-900">{rate.name}</td>
+                                    <td className="px-6 py-4 font-medium text-slate-900">{rate.name}</td>
                                     <td className="px-6 py-4">
                                         <span className={`px-2 py-1 rounded text-xs font-bold ${
                                             rate.category === 'Paper' ? 'bg-slate-100 text-slate-700' :
                                             rate.category === 'Plastic' ? 'bg-blue-100 text-blue-700' :
                                             rate.category === 'Metal' ? 'bg-orange-100 text-orange-700' :
                                             rate.category === 'E-Waste' ? 'bg-purple-100 text-purple-700' : 
-                                            'bg-emerald-100 text-emerald-700'
+                                            'bg-emerald-100 text-emerald-600'
                                         }`}>
                                             {rate.category}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 font-mono font-semibold text-emerald-700">₹{rate.price}</td>
+                                    <td className="px-6 py-4 font-mono font-semibold text-emerald-600">₹{rate.price}</td>
                                     <td className="px-6 py-4 text-slate-500 capitalize">{rate.unit || 'kg'}</td>
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex justify-end gap-2">
@@ -339,10 +339,10 @@ const AdminPanel = () => {
 
         {/* Rate Edit/Create Modal */}
         {showRateModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-emerald-950/50 backdrop-blur-sm p-4">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-emerald-500/30 backdrop-blur-sm p-4">
                 <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden ring-1 ring-emerald-100">
                     <div className="p-6 border-b border-emerald-50 flex justify-between items-center">
-                         <h3 className="text-lg font-bold text-emerald-950">{editingRate ? 'Edit Rate' : 'New Rate'}</h3>
+                         <h3 className="text-lg font-bold text-slate-900">{editingRate ? 'Edit Rate' : 'New Rate'}</h3>
                          <button onClick={() => setShowRateModal(false)}><X className="h-5 w-5 text-slate-400 hover:text-slate-600" /></button>
                     </div>
                     <form onSubmit={handleSaveRate} className="p-6 space-y-4">
@@ -377,7 +377,7 @@ const AdminPanel = () => {
                              <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
                              <input name="description" defaultValue={editingRate?.description} className="w-full border border-emerald-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
                         </div>
-                        <button type="submit" className="w-full bg-emerald-600 text-white py-2 rounded-lg font-bold hover:bg-emerald-700 transition shadow-lg shadow-emerald-200">
+                        <button type="submit" className="w-full bg-emerald-500 text-white py-2 rounded-lg font-bold hover:bg-emerald-400 transition shadow-lg shadow-emerald-200">
                             Save Rate
                         </button>
                     </form>
@@ -447,7 +447,7 @@ const AdminAnalytics = ({ rates }) => {
                         </div>
                         <div>
                             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Inventory</p>
-                            <h3 className="text-2xl font-bold text-emerald-950">{stats.weight.totalEstimated.toFixed(1)} <span className="text-sm text-slate-400 font-medium">kg</span></h3>
+                            <h3 className="text-2xl font-bold text-slate-900">{stats.weight.totalEstimated.toFixed(1)} <span className="text-sm text-slate-400 font-medium">kg</span></h3>
                         </div>
                     </div>
                 </div>
@@ -459,7 +459,7 @@ const AdminAnalytics = ({ rates }) => {
                         </div>
                         <div>
                             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Est. Stock Value</p>
-                            <h3 className="text-2xl font-bold text-emerald-950">₹{totalInventoryValue.toLocaleString()}</h3>
+                            <h3 className="text-2xl font-bold text-slate-900">₹{totalInventoryValue.toLocaleString()}</h3>
                         </div>
                     </div>
                 </div>
@@ -481,12 +481,12 @@ const AdminAnalytics = ({ rates }) => {
             <div className="bg-white rounded-xl shadow-sm border border-emerald-100 overflow-hidden">
                  <div className="p-6 border-b border-emerald-50 flex justify-between items-center">
                     <div>
-                        <h2 className="text-xl font-semibold text-emerald-950">Inventory Breakdown</h2>
+                        <h2 className="text-xl font-semibold text-slate-900">Inventory Breakdown</h2>
                         <p className="text-slate-500 text-sm mt-1">Current stock levels by waste type.</p>
                     </div>
                     <button 
                          onClick={() => window.print()}
-                         className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-bold hover:bg-emerald-100 transition-colors"
+                         className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-sm font-bold hover:bg-emerald-100 transition-colors"
                     >
                         Export Report
                     </button>
@@ -497,14 +497,14 @@ const AdminAnalytics = ({ rates }) => {
                         {inventoryByCat.map((cat) => (
                             <div key={cat.category} className="border border-emerald-100 rounded-xl p-5 hover:border-emerald-300 transition-all bg-emerald-50/10">
                                 <div className="flex justify-between items-start mb-4">
-                                     <span className="capitalize px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                     <span className="capitalize px-3 py-1 bg-emerald-100 text-emerald-600 rounded-full text-[10px] font-bold uppercase tracking-wider">
                                         {cat.category}
                                      </span>
                                      <span className="text-xs font-medium text-slate-400">{cat.count} Batches</span>
                                 </div>
                                 <div className="space-y-1">
                                     <div className="flex justify-between items-end">
-                                        <h4 className="text-3xl font-bold text-emerald-950">{cat.weight}</h4>
+                                        <h4 className="text-3xl font-bold text-slate-900">{cat.weight}</h4>
                                         <span className="text-sm font-bold text-slate-400 mb-1">KG</span>
                                     </div>
                                     <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
@@ -513,7 +513,7 @@ const AdminAnalytics = ({ rates }) => {
                                             style={{ width: `${(cat.weight / stats.weight.totalEstimated) * 100}%` }} 
                                         />
                                     </div>
-                                    <p className="text-xs font-medium text-emerald-700 pt-2 text-right">
+                                    <p className="text-xs font-medium text-emerald-600 pt-2 text-right">
                                         Est. Value: ₹{cat.estimatedValue.toLocaleString()}
                                     </p>
                                 </div>
@@ -578,7 +578,7 @@ const AdminPayouts = () => {
                             <th className="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Value</th>
                             <th className="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Cash Spent (Reimburse)</th>
                             <th className="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Commission (10%)</th>
-                            <th className="px-6 py-3 text-xs font-semibold text-emerald-700 uppercase tracking-wider text-right">Total Payable</th>
+                            <th className="px-6 py-3 text-xs font-semibold text-emerald-600 uppercase tracking-wider text-right">Total Payable</th>
                             <th className="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Action</th>
                         </tr>
                     </thead>
@@ -587,7 +587,7 @@ const AdminPayouts = () => {
                             <tr key={item._id} className="hover:bg-emerald-50/30 transition-colors">
                                 <td className="px-6 py-4">
                                     <div className="flex flex-col">
-                                        <span className="font-bold text-emerald-950">{item.name}</span>
+                                        <span className="font-bold text-slate-900">{item.name}</span>
                                         <span className="text-xs text-slate-500">{item.email}</span>
                                         <span className="text-xs text-slate-400">{item.vehicle}</span>
                                     </div>
@@ -597,12 +597,12 @@ const AdminPayouts = () => {
                                 <td className="px-6 py-4 font-mono text-slate-600">₹{item.cashSpent.toLocaleString()}</td>
                                 <td className="px-6 py-4 font-mono text-green-600">+₹{item.commission.toLocaleString()}</td>
                                 <td className="px-6 py-4 text-right">
-                                    <span className="text-lg font-bold text-emerald-700">₹{item.totalPayable.toLocaleString()}</span>
+                                    <span className="text-lg font-bold text-emerald-600">₹{item.totalPayable.toLocaleString()}</span>
                                 </td>
                                 <td className="px-6 py-4 text-right">
                                     <button 
                                         onClick={() => handleSettle(item._id)}
-                                        className="text-xs bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg font-bold hover:bg-emerald-200 transition"
+                                        className="text-xs bg-emerald-100 text-emerald-600 px-3 py-1.5 rounded-lg font-bold hover:bg-emerald-200 transition"
                                     >
                                         Settle
                                     </button>

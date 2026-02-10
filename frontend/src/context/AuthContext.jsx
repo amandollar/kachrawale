@@ -46,10 +46,32 @@ export const AuthProvider = ({ children }) => {
           setUser(user);
           return { success: true };
       } else {
-          return { success: false, message: response.data.message };
+          return { success: false, message: response.data.message || 'Login failed' };
       }
     } catch (error) {
-      return { success: false, message: error.response?.data?.message || 'Login failed' };
+      // Handle different error response formats
+      let errorMessage = 'Invalid email or password. Please try again.';
+      
+      if (error.response) {
+        // Backend returned an error response
+        const errorData = error.response.data;
+        if (errorData?.message) {
+          errorMessage = errorData.message;
+        } else if (errorData?.error) {
+          errorMessage = errorData.error;
+        } else if (error.response.status === 401) {
+          errorMessage = 'Invalid email or password. Please check your credentials.';
+        } else if (error.response.status === 404) {
+          errorMessage = 'User not found. Please check your email address.';
+        } else if (error.response.status >= 500) {
+          errorMessage = 'Server error. Please try again later.';
+        }
+      } else if (error.request) {
+        // Request was made but no response received
+        errorMessage = 'Network error. Please check your connection and try again.';
+      }
+      
+      return { success: false, message: errorMessage };
     }
   };
 

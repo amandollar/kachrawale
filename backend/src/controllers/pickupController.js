@@ -58,7 +58,15 @@ exports.createPickup = asyncHandler(async (req, res) => {
                 
                 <div style="background-color: #f0fdf4; border-radius: 8px; padding: 15px; margin: 20px 0;">
                     <p style="margin: 5px 0; color: #065f46;"><strong>Weight:</strong> ${pickup.weight} kg</p>
-                    <p style="margin: 5px 0; color: #065f46;"><strong>Location:</strong> ${req.body.location ? JSON.parse(req.body.location).formattedAddress : 'Pinned on Map'}</p>
+                    <p style="margin: 5px 0; color: #065f46;"><strong>Location:</strong> ${(() => {
+                        try {
+                            if (!req.body.location) return 'Pinned on Map';
+                            const location = typeof req.body.location === 'string' ? JSON.parse(req.body.location) : req.body.location;
+                            return location.formattedAddress || 'Pinned on Map';
+                        } catch (e) {
+                            return 'Pinned on Map';
+                        }
+                    })()}</p>
                 </div>
 
                 <p style="color: #4b5563; font-weight: bold;">Waste Photos:</p>
@@ -142,10 +150,11 @@ exports.updatePickupStatus = asyncHandler(async (req, res) => {
       }
 
       if (req.io) {
+          const citizenId = pickup.citizen?._id || pickup.citizen || null;
           const payload = {
               pickupId: pickup._id,
               status: pickup.status,
-              citizenId: pickup.citizen._id || pickup.citizen,
+              citizenId: citizenId,
               collectorId: pickup.collector
           };
           
@@ -190,7 +199,13 @@ exports.updatePickupStatus = asyncHandler(async (req, res) => {
       } else {
           rateCategory = pickup.wasteType.charAt(0).toUpperCase() + pickup.wasteType.slice(1).toLowerCase();
       }
-      const wasteRate = await WasteRate.findOne({ category: rateCategory });
+      // Try to find rate by name first, then by category
+      const wasteRate = await WasteRate.findOne({ 
+        $or: [
+          { name: pickup.wasteType.toLowerCase() },
+          { category: rateCategory }
+        ]
+      }).sort({ price: -1 }); // Get highest matching rate if multiple
 
       if (!wasteRate) {
           throw new ApiError(500, `Market rate for category ${rateCategory} not found`);
@@ -211,19 +226,23 @@ exports.updatePickupStatus = asyncHandler(async (req, res) => {
   await pickup.save();
 
   if (req.io) {
+      const citizenId = pickup.citizen?._id || pickup.citizen || null;
+      const collectorId = pickup.collector?._id || pickup.collector || null;
       const payload = {
           pickupId: pickup._id,
           status: pickup.status,
-          citizenId: pickup.citizen,
-          collectorId: pickup.collector
+          citizenId: citizenId,
+          collectorId: collectorId
       };
 
       // Notify the specific citizen
-      req.io.to(`user_${pickup.citizen}`).emit('pickup_status_updated', payload);
+      if (citizenId) {
+          req.io.to(`user_${citizenId}`).emit('pickup_status_updated', payload);
+      }
       
       // Notify the specific collector
-      if (pickup.collector) {
-          req.io.to(`user_${pickup.collector}`).emit('pickup_status_updated', payload);
+      if (collectorId) {
+          req.io.to(`user_${collectorId}`).emit('pickup_status_updated', payload);
       }
 
       // Also notify anyone watching the specific pickup tracking room

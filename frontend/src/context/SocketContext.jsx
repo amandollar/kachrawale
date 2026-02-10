@@ -13,8 +13,9 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     // Only connect if user is logged in
     if (user) {
-      // Create connection
-      const newSocket = io('http://localhost:5000', {
+      // Create connection - use environment variable or default to localhost
+      const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+      const newSocket = io(socketUrl, {
         transports: ['websocket'],
         // Pass token if your socket auth middleware requires it, 
         // purely relying on simple connection for now
@@ -25,12 +26,16 @@ export const SocketProvider = ({ children }) => {
       // Cleanup on unmount or user change
       return () => {
         newSocket.disconnect();
+        setSocket(null);
       };
     } else {
-       if (socket) {
-           socket.disconnect();
-           setSocket(null);
-       }
+      // Disconnect existing socket if user logs out
+      setSocket((prevSocket) => {
+        if (prevSocket) {
+          prevSocket.disconnect();
+        }
+        return null;
+      });
     }
   }, [user]);
 

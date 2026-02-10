@@ -121,7 +121,7 @@ const PickupDetailModal = ({ pickup, onClose, onAccept, processingId, onStatusUp
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex justify-center items-start overflow-y-auto p-4 py-8 sm:py-20">
+    <div className="fixed inset-0 z-[100] flex justify-center items-start overflow-y-auto p-2 sm:p-4 py-4 sm:py-8 md:py-20">
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -135,7 +135,8 @@ const PickupDetailModal = ({ pickup, onClose, onAccept, processingId, onStatusUp
         initial="hidden"
         animate="visible"
         exit="exit"
-        className="relative bg-white rounded-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] overflow-hidden w-full max-w-4xl max-h-none sm:max-h-[90vh] flex flex-col my-auto"
+        onClick={(e) => e.stopPropagation()}
+        className="relative bg-white rounded-xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] overflow-hidden w-full max-w-[calc(100vw-1rem)] sm:max-w-4xl max-h-[calc(100vh-2rem)] sm:max-h-[90vh] flex flex-col my-auto z-[101]"
       >
           {/* Professional Header */}
           <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-white z-10">
@@ -150,7 +151,7 @@ const PickupDetailModal = ({ pickup, onClose, onAccept, processingId, onStatusUp
                     <div className="flex items-center gap-2 mt-0.5">
                         <span className={cn(
                             "px-2 py-0.5 rounded text-[9px] font-bold tracking-wider border uppercase",
-                            pickup.status === 'COMPLETED' ? "bg-emerald-50 text-emerald-700 border-emerald-100" : "bg-blue-50 text-blue-700 border-blue-100"
+                            pickup.status === 'COMPLETED' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-blue-50 text-blue-600 border-blue-100"
                         )}>
                             {pickup.status}
                         </span>
@@ -225,10 +226,10 @@ const PickupDetailModal = ({ pickup, onClose, onAccept, processingId, onStatusUp
 
                             <div className="p-6 bg-emerald-50 rounded-xl border border-emerald-100 flex justify-between items-center">
                                 <div className="space-y-1">
-                                    <span className="text-emerald-800/60 font-bold uppercase tracking-widest text-[10px]">Total Commission Payable</span>
-                                    <p className="text-xs text-emerald-800 font-medium">Verified weight × Standard rate</p>
+                                    <span className="text-emerald-600/60 font-bold uppercase tracking-widest text-[10px]">Total Commission Payable</span>
+                                    <p className="text-xs text-emerald-600 font-medium">Verified weight × Standard rate</p>
                                 </div>
-                                <span className="text-3xl font-bold text-emerald-950 tracking-tight">₹{calculateTotal()}</span>
+                                <span className="text-3xl font-bold text-slate-900 tracking-tight">₹{calculateTotal()}</span>
                             </div>
 
                             <div className="space-y-4 text-center">
@@ -284,7 +285,7 @@ const PickupDetailModal = ({ pickup, onClose, onAccept, processingId, onStatusUp
                                 <button
                                     type="submit"
                                     disabled={localProcessing}
-                                    className="flex-[2] flex items-center justify-center gap-2 py-4 px-6 rounded-lg font-bold text-[10px] text-white bg-slate-900 hover:bg-slate-800 uppercase tracking-widest transition-all disabled:opacity-50"
+                                    className="flex-[2] flex items-center justify-center gap-2 py-4 px-6 rounded-lg font-bold text-[10px] text-white bg-slate-900 hover:bg-slate-800 uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-slate-900"
                                 >
                                     {localProcessing ? 'Syncing...' : 'Finalize Dispatch'}
                                 </button>
@@ -470,7 +471,7 @@ const PickupDetailModal = ({ pickup, onClose, onAccept, processingId, onStatusUp
                                 {canComplete && (
                                     <button 
                                         onClick={() => setShowPaymentForm(true)} 
-                                        className="flex-1 py-4 px-6 rounded-lg font-bold text-[11px] text-white bg-emerald-600 hover:bg-emerald-700 uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                                        className="flex-1 py-4 px-6 rounded-lg font-bold text-[11px] text-white bg-emerald-500 hover:bg-emerald-400 uppercase tracking-widest transition-all flex items-center justify-center gap-2"
                                     >
                                         Proceed to Settle
                                     </button>

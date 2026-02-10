@@ -17,7 +17,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: ['http://localhost:5173', 'http://localhost:3000', process.env.CLIENT_URL].filter(Boolean),
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
   }
 });
@@ -62,30 +62,46 @@ io.on('connection', (socket) => {
   
   // Join a private room for the user
   socket.on('join_user', (userId) => {
+      if (!userId) {
+          socket.emit('error', { message: 'Invalid user ID' });
+          return;
+      }
       socket.join(`user_${userId}`);
       console.log(`User ${userId} joined their private room`);
   });
 
   // Join a room for a specific pickup tracking
   socket.on('join_pickup', (pickupId) => {
+      if (!pickupId) {
+          socket.emit('error', { message: 'Invalid pickup ID' });
+          return;
+      }
       socket.join(`pickup_${pickupId}`);
       console.log(`Socket joined tracking room for pickup: ${pickupId}`);
   });
 
   socket.on('update_location', (data) => {
       // Data: { pickupId, lat, lng, heading }
+      if (!data || !data.pickupId) {
+          socket.emit('error', { message: 'Invalid location data' });
+          return;
+      }
       // Targeted broadcast to the pickup's room
       io.to(`pickup_${data.pickupId}`).emit('location_updated', data);
   });
 
   socket.on('send_message', async (data) => {
       // Data: { pickupId, senderId, content }
+      if (!data || !data.pickupId || !data.senderId || !data.content) {
+          socket.emit('error', { message: 'Invalid message data' });
+          return;
+      }
       const Message = require('./src/models/Message');
       try {
           const message = await Message.create({
               pickup: data.pickupId,
               sender: data.senderId,
-              content: data.content
+              content: data.content.trim()
           });
           
           const populatedMessage = await message.populate('sender', 'name profilePicture');
@@ -94,12 +110,17 @@ io.on('connection', (socket) => {
           io.to(`pickup_${data.pickupId}`).emit('receive_message', populatedMessage);
       } catch (err) {
           console.error('Chat Error:', err);
+          socket.emit('error', { message: 'Failed to send message' });
       }
   });
 
   // --- SUPPORT CHAT EVENTS ---
   socket.on('join_support', (data) => {
       // data: { userId, role }
+      if (!data || !data.userId) {
+          socket.emit('error', { message: 'Invalid support join data' });
+          return;
+      }
       if (data.role === 'admin') {
           socket.join('support_all'); // Admins listen to all support activity
           console.log(`Admin ${data.userId} joined support_all room`);
@@ -110,13 +131,17 @@ io.on('connection', (socket) => {
 
   socket.on('send_support_message', async (data) => {
       // data: { supportUserId, senderId, content, isAdmin }
+      if (!data || !data.supportUserId || !data.senderId || !data.content) {
+          socket.emit('error', { message: 'Invalid support message data' });
+          return;
+      }
       const Message = require('./src/models/Message');
       try {
           const message = await Message.create({
               sender: data.senderId,
               isSupport: true,
               supportUser: data.supportUserId,
-              content: data.content
+              content: data.content.trim()
           });
           
           const populatedMessage = await message.populate('sender', 'name profilePicture role');
@@ -129,6 +154,7 @@ io.on('connection', (socket) => {
           
       } catch (err) {
           console.error('Support Chat Error:', err);
+          socket.emit('error', { message: 'Failed to send support message' });
       }
   });
 
